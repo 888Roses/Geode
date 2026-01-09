@@ -1,20 +1,22 @@
-package net.collectively.geode.player.delays;
+package net.collectively.geode.player.delays._internal;
 
 import net.collectively.geode.cardinal_components.GeodeEntityComponents;
 import net.collectively.geode.cardinal_components.SyncedPlayerComponent;
+import net.collectively.geode.player.delays.DelayedAction;
+import net.collectively.geode.player.delays.PlayerDelays;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.storage.ReadView;
 import net.minecraft.storage.WriteView;
 import org.jetbrains.annotations.ApiStatus;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
-import org.ladysnake.cca.api.v3.component.tick.CommonTickingComponent;
+import org.ladysnake.cca.api.v3.component.tick.ServerTickingComponent;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /// Internal. Do not use. Use {@link PlayerDelays} for an implementation.
 @ApiStatus.Internal
-public class PlayerDelaysComponent extends SyncedPlayerComponent implements CommonTickingComponent {
+public class PlayerDelaysComponent extends SyncedPlayerComponent implements ServerTickingComponent {
     /// Contains every delayed action to run.
     private final List<DelayedAction> delayedActions = new ArrayList<>();
 
@@ -53,6 +55,10 @@ public class PlayerDelaysComponent extends SyncedPlayerComponent implements Comm
 
     /// Enqueues a new action to the {@link #delayedActions} list.
     public final void enqueue(DelayedAction action) {
+        if (world().isClient()) {
+            return;
+        }
+
         delayedActions.add(action);
     }
 
@@ -60,7 +66,7 @@ public class PlayerDelaysComponent extends SyncedPlayerComponent implements Comm
 
     /// Tries to execute any valid delayed action every tick, and removes them from the {@link #delayedActions} list.
     @Override
-    public void tick() {
+    public void serverTick() {
         if (delayedActions.isEmpty()) {
             return;
         }

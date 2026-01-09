@@ -1,8 +1,12 @@
 package net.collectively.geode.player.delays;
 
+import net.collectively.geode.player.delays._internal.PlayerDelaysComponent;
 import net.minecraft.entity.player.PlayerEntity;
 
-/// Offers a way of enqueuing actions to be run after a given tick delay on both sides. Example use:
+/// # PlayerDelays
+///
+/// Offers a way of enqueuing actions to be run after a given tick delay on the server side. Example use:
+///
 /// ```java
 /// public class PlayerAbilityManager {
 ///     public static void useFireballAbility(PlayerEntity player, int count) {
@@ -14,16 +18,50 @@ import net.minecraft.entity.player.PlayerEntity;
 ///         }
 ///     }
 ///
+///     @Environment(EnvType.SERVER)
 ///     public static void spawnFireball(PlayerEntity player) {
 ///         // Spawn your fireball...
 ///     }
 /// }
 /// ```
 ///
-/// > [!IMPORTANT]
-/// > Enqueueing actions on the client side is risky. Since they run on the client side, a player leaving and re-joining the
-/// server will clear all enqueued actions since `Runnable` isn't savable. This means that enqueueing important gameplay
-/// delayed actions on the server, and then sending them to the client using payloads is always the preferred approach.
+/// > [!IMPORTANT] Server side only!
+/// > Should never be called on the client side as:
+/// > 1. user disconnection might cause a desync between the server and the client.
+/// > 2. Enqueueing important actions on the client is also a very bad habit in terms of cheat detection and prevention.
+/// >
+/// > For those reasons, any client side call of this method will be ignored.
+///
+/// ## Members
+///
+/// ### `enqueue(PlayerEntity, DelayedAction)`
+///
+/// Enqueues a new [Delayed Action ⌝]() to be run for the `player`.
+///
+/// **Parameters**
+///
+/// **`player`**
+/// The player to add the delay to.
+///
+/// **`action`**
+/// The action to run.
+///
+/// ---
+///
+/// ### `enqueue(PlayerEntity, long, Runnable)`
+///
+/// Enqueues a new [Delayed Action ⌝]() to be run for the `player`.
+///
+/// **Parameters**
+///
+/// **`player`**
+/// The player to add the delay to.
+///
+/// **`delay`**
+/// The delay in ticks before the `action` is run.
+///
+/// **`action`**
+/// The action to run.
 public interface PlayerDelays {
     /// Enqueues a new {@link DelayedAction} to be run for the `player`.
     ///

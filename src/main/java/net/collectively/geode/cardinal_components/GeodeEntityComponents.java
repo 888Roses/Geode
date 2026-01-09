@@ -3,7 +3,7 @@ package net.collectively.geode.cardinal_components;
 import net.collectively.geode.Geode;
 import net.collectively.geode.cardinal_components.index.EntityComponentFactoryRegistryImpl;
 import net.collectively.geode.cardinal_components.index.EntityComponentIndex;
-import net.collectively.geode.player.delays.PlayerDelaysComponent;
+import net.collectively.geode.player.delays._internal.PlayerDelaysComponent;
 import org.jetbrains.annotations.ApiStatus;
 import org.ladysnake.cca.api.v3.component.Component;
 import org.ladysnake.cca.api.v3.component.ComponentKey;
