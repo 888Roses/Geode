@@ -1,9 +1,9 @@
 package net.collectively.v2;
 
-import net.collectively.v2.registration.Registerer;
+import net.collectively.v2.registration.ServerRegisterer;
 
 @SuppressWarnings("unused")
-public class Geode implements Registerer {
+public class Geode implements ServerRegisterer {
     private final String linkedModId;
 
     /// Creates a new [Geode] instance to be used for the given mod.

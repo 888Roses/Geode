@@ -20,18 +20,10 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
-public interface Registerer {
+public interface ServerRegisterer extends CommonRegisterer{
     // region Common
 
-    /// The name of the mod linked to this [Registerer].
-    String getLinkedModId();
-
-    /// Creates an [Identifier] using the [registerer's namespace][#getLinkedModId()] and the given `identifier` path.
-    default Identifier id(String identifier) {
-        return Identifier.of(getLinkedModId(), identifier);
-    }
-
-    /// Ends the registration stage of this [Registerer]. Should be called in the initialization step of your mod.
+    /// Ends the registration stage of this [ServerRegisterer]. Should be called in the initialization step of your mod.
     /// For example:
     /// ```java
     /// public class ExampleMod implements ModInitializer {
@@ -44,6 +36,7 @@ public interface Registerer {
     ///     }
     /// }
     /// ```
+    @Override
     default void register() {
         GeodeCustomRegistries.postInitialization();
     }
