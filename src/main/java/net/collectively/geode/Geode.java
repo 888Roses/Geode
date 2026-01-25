@@ -1,6 +1,7 @@
 package net.collectively.geode;
 
 import net.collectively.geode.mc._internal.GeodeMinecraft;
+import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.util.Identifier;
@@ -10,7 +11,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Main API class.
  */
-public class Geode {
+public class Geode implements ModInitializer {
     public static final String GEODE_ID = "geode";
 
     public static String HOOKED_MOD_ID;
@@ -31,9 +32,13 @@ public class Geode {
     }
 
     private static void initializeInternals() {
-        GeodeMinecraft.initialize();
 
         OnInitializedCallback.EVENT.invoker().onInitialized();
+    }
+
+    @Override
+    public void onInitialize() {
+        GeodeMinecraft.initialize();
     }
 
     public interface OnInitializedCallback {
