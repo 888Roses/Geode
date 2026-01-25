@@ -11,6 +11,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -215,7 +216,7 @@ interface Registerer {
     /// Registers a new [BlockEntity] using the given [identifier](Identifier), [factory](FabricBlockEntityTypeBuilder.Factory) and [blocks][Block].
     ///
     /// @param identifier The identifier of the created block entity.
-    /// @param factory Factory function taking in the [position](BlockPos) and [BlockState] of the block entity and returning a new [BlockEntity] of type T.
+    /// @param factory Factory function taking in the [position](BlockPos) and [BlockState] of the block entity and returning a new [BlockEntity] of type [T].
     /// @param blocks Any number of [Block] this block state applies to.
     /// @return A [BlockEntityType] object containing information about the registered [BlockEntity].
     ///
@@ -227,7 +228,7 @@ interface Registerer {
     /// Registers a new [BlockEntity] using the given [identifier](Identifier), [factory](FabricBlockEntityTypeBuilder.Factory) and [blocks][Block].
     ///
     /// @param identifier The identifier of the created block entity.
-    /// @param factory Factory function taking in the [position](BlockPos) and [BlockState] of the block entity and returning a new [BlockEntity] of type T.
+    /// @param factory Factory function taking in the [position](BlockPos) and [BlockState] of the block entity and returning a new [BlockEntity] of type [T].
     /// @param blocks Any number of [Block] this block state applies to.
     /// @return A [BlockEntityType] object containing information about the registered [BlockEntity].
     ///
@@ -237,6 +238,75 @@ interface Registerer {
     /// @see #registerBlockEntity(Identifier, FabricBlockEntityTypeBuilder.Factory, Block...)
     default <T extends BlockEntity> BlockEntityType<T> registerBlockEntity(String identifier, FabricBlockEntityTypeBuilder.Factory<? extends @NotNull T> factory, Block... blocks) {
         return registerBlockEntity(id(identifier), factory, blocks);
+    }
+
+    // endregion
+
+    // region Tags
+
+    /// Creates a new [TagKey] of type [T] with the given [identifier](Identifier).
+    ///
+    /// @param registryReference The registry of this type.
+    /// @param identifier The identifier of the tag.
+    /// @return The created [TagKey].
+    ///
+    /// @see #registerTag(RegistryKey, String)
+    default <T> TagKey<T> registerTag(RegistryKey<? extends Registry<T>> registryReference, Identifier identifier) {
+        return TagKey.of(registryReference, identifier);
+    }
+
+    /// Creates a new [TagKey] of type [T] with the given [identifier](Identifier).
+    ///
+    /// @param registryReference The registry of this type.
+    /// @param identifier The identifier of the tag.
+    /// @return The created [TagKey].
+    ///
+    /// @apiNote The `String` identifier is turned into an [Identifier] with the namespace being the [#getLinkedModId()],
+    ///          using [#id(String)].
+    ///
+    /// @see #registerTag(RegistryKey, Identifier)
+    default <T> TagKey<T> registerTag(RegistryKey<? extends Registry<T>> registryReference, String identifier) {
+        return registerTag(registryReference, id(identifier));
+    }
+
+    /// Creates a new [TagKey] of type [Block] with the given [identifier](Identifier).
+    ///
+    /// @param identifier The identifier of that tag.
+    /// @return The created [TagKey] of [Block].
+    /// @see #registerBlockTag(String)
+    default TagKey<Block> registerBlockTag(Identifier identifier) {
+        return registerTag(RegistryKeys.BLOCK, identifier);
+    }
+
+    /// Creates a new [TagKey] of type [Block] with the given [identifier](Identifier).
+    ///
+    /// @param identifier The identifier of that tag.
+    /// @return The created [TagKey] of [Block].
+    /// @apiNote The `String` identifier is turned into an [Identifier] with the namespace being the [#getLinkedModId()],
+    ///          using [#id(String)].
+    /// @see #registerBlockTag(Identifier)
+    default TagKey<Block> registerBlockTag(String identifier) {
+        return registerTag(RegistryKeys.BLOCK, identifier);
+    }
+
+    /// Creates a new [TagKey] of type [Item] with the given [identifier](Identifier).
+    ///
+    /// @param identifier The identifier of that tag.
+    /// @return The created [TagKey] of [Item].
+    /// @see #registerItemTag(String)
+    default TagKey<Item> registerItemTag(Identifier identifier) {
+        return registerTag(RegistryKeys.ITEM, identifier);
+    }
+
+    /// Creates a new [TagKey] of type [Item] with the given [identifier](Identifier).
+    ///
+    /// @param identifier The identifier of that tag.
+    /// @return The created [TagKey] of [Item].
+    /// @apiNote The `String` identifier is turned into an [Identifier] with the namespace being the [#getLinkedModId()],
+    ///          using [#id(String)].
+    /// @see #registerItemTag(Identifier)
+    default TagKey<Item> registerItemTag(String identifier) {
+        return registerTag(RegistryKeys.ITEM, identifier);
     }
 
     // endregion
