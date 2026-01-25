@@ -12,6 +12,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -307,6 +308,30 @@ interface Registerer {
     /// @see #registerItemTag(Identifier)
     default TagKey<Item> registerItemTag(String identifier) {
         return registerTag(RegistryKeys.ITEM, identifier);
+    }
+
+    // endregion
+
+    // region Sounds
+
+    /// Registers a new [SoundEvent] with the given [identifier](Identifier).
+    ///
+    /// @param identifier The identifier of the registered sound.
+    /// @return The registered [SoundEvent].
+    /// @see #register(String)
+    default SoundEvent register(Identifier identifier) {
+        return Registry.register(Registries.SOUND_EVENT, identifier, SoundEvent.of(identifier));
+    }
+
+    /// Registers a new [SoundEvent] with the given `String` identifier.
+    ///
+    /// @param identifier The identifier of the registered sound.
+    /// @return The registered [SoundEvent].
+    /// @apiNote The `String` identifier is turned into an [Identifier] with the namespace being the [#getLinkedModId()],
+    ///          using [#id(String)].
+    /// @see #register(Identifier)
+    default SoundEvent register(String identifier) {
+        return register(id(identifier));
     }
 
     // endregion
