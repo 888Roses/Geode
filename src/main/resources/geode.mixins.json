@@ -1,11 +1,19 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.collectively.v1.mixin",
+  "package": "net.collectively.v2.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
   ],
   "client": [
+    "client.options.AccessibilityOptionsScreenMixin",
+    "client.options.ChatOptionsScreenMixin",
+    "client.options.ControlsOptionsScreenMixin",
+    "client.options.GameOptionsMixin",
+    "client.options.MouseOptionsScreenMixin",
+    "client.options.SkinOptionsScreenMixin",
+    "client.options.SoundOptionsScreenMixin",
+    "client.options.VideoOptionsScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

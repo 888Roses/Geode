@@ -12,7 +12,8 @@
   "icon": "assets/geode/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["dev.rosenoire.testmod.TestingMod"]
+    "main": ["dev.rosenoire.testmod.TestingMod"],
+    "client": ["dev.rosenoire.testmod.TestingModClient"]
   },
   "mixins": [
     "geode.mixins.json"
@@ -21,6 +22,7 @@
     "cardinal-components": [
     ]
   },
+  "accessWidener": "geode.accesswidener",
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",

@@ -38,7 +38,7 @@ public interface ServerRegisterer extends CommonRegisterer{
     /// ```
     @Override
     default void register() {
-        GeodeCustomRegistries.postInitialization();
+        ServerCustomRegistries.postInitialization();
     }
 
     // endregion
@@ -371,7 +371,7 @@ public interface ServerRegisterer extends CommonRegisterer{
     default GeodeGroup registerGroup(Identifier identifier, ItemGroup.Builder builder, Item... content) {
         RegistryKey<ItemGroup> registryKey = RegistryKey.of(Registries.ITEM_GROUP.getKey(), identifier);
         GeodeGroup constructedGroup = new GeodeGroup(registryKey, builder.build(), () -> content);
-        GeodeCustomRegistries.GROUPS.add(constructedGroup);
+        ServerCustomRegistries.GROUPS.add(constructedGroup);
         return constructedGroup;
     }
 

@@ -3,7 +3,7 @@ package net.collectively.v2.registration;
 import java.util.ArrayList;
 import java.util.List;
 
-interface GeodeCustomRegistries {
+interface ServerCustomRegistries {
     List<GeodeGroup> GROUPS = new ArrayList<>();
 
     static void postInitialization() {
