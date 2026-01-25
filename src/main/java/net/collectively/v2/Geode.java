@@ -6,6 +6,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -318,8 +320,8 @@ interface Registerer {
     ///
     /// @param identifier The identifier of the registered sound.
     /// @return The registered [SoundEvent].
-    /// @see #register(String)
-    default SoundEvent register(Identifier identifier) {
+    /// @see #registerSound(String)
+    default SoundEvent registerSound(Identifier identifier) {
         return Registry.register(Registries.SOUND_EVENT, identifier, SoundEvent.of(identifier));
     }
 
@@ -329,9 +331,38 @@ interface Registerer {
     /// @return The registered [SoundEvent].
     /// @apiNote The `String` identifier is turned into an [Identifier] with the namespace being the [#getLinkedModId()],
     ///          using [#id(String)].
-    /// @see #register(Identifier)
-    default SoundEvent register(String identifier) {
-        return register(id(identifier));
+    /// @see #registerSound(Identifier)
+    default SoundEvent registerSound(String identifier) {
+        return registerSound(id(identifier));
+    }
+
+    // endregion
+
+    // region EntityType
+
+    /// Registers a new [entity type](EntityType) of type [T] with the given [Identifier] using the [EntityType.Builder].
+    ///
+    /// @param identifier The identifier of that entity.
+    /// @param builder    Builder class containing information about the registration of that entity.
+    /// @param <T>        The type of entity to register.
+    /// @return The registered [EntityType] of type [T].
+    /// @see #registerEntity(String, EntityType.Builder)
+    default <T extends Entity> EntityType<T> registerEntity(Identifier identifier, EntityType.Builder<T> builder) {
+        RegistryKey<EntityType<?>> registryKey = RegistryKey.of(RegistryKeys.ENTITY_TYPE, identifier);
+        return Registry.register(Registries.ENTITY_TYPE, registryKey, builder.build(registryKey));
+    }
+
+    /// Registers a new [entity type](EntityType) of type [T] with the given [Identifier] using the [EntityType.Builder].
+    ///
+    /// @param identifier The identifier of that entity.
+    /// @param builder    Builder class containing information about the registration of that entity.
+    /// @param <T>        The type of entity to register.
+    /// @return The registered [EntityType] of type [T].
+    /// @apiNote The `String` identifier is turned into an [Identifier] with the namespace being the [#getLinkedModId()],
+    ///          using [#id(String)].
+    /// @see #registerEntity(Identifier, EntityType.Builder)
+    default <T extends Entity> EntityType<T> registerEntity(String identifier, EntityType.Builder<T> builder) {
+        return registerEntity(id(identifier), builder);
     }
 
     // endregion
