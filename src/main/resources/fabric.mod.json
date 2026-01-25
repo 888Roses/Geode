@@ -12,9 +12,6 @@
   "icon": "assets/geode/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [
-      "net.collectively.geode.Geode"
-    ],
     "cardinal-components-entity": [
       "net.collectively.geode.cardinal_components_api._internal.GeodeEntityComponentIndex"
     ]
