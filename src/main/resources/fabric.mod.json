@@ -3,15 +3,15 @@
   "id": "geode",
   "version": "${version}",
   "name": "Geode",
-  "description": "",
-  "authors": [],
+  "description": "Your ultimate Minecraft Java development toolbox.",
+  "authors": [
+    "Rosenoire_"
+  ],
   "contact": {},
   "license": "All-Rights-Reserved",
   "icon": "assets/geode/icon.png",
   "environment": "*",
   "entrypoints": {
-    "fabric-datagen": ["net.collectively.geode.core.data.GeodeDataGenerator"],
-    "client": ["net.collectively.geode.core.client.GeodeClient"],
     "main": ["net.collectively.geode.Geode"],
     "cardinal-components-entity": ["net.collectively.geode.cardinal_components.GeodeEntityComponents"]
   },

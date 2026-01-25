@@ -1,13 +1,11 @@
 package net.collectively.geode.mc.util;
 
-import net.collectively.geode.core.types.double2;
 import net.collectively.geode.core.types.double3;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.PlayerLikeEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;

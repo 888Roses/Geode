@@ -1,12 +1,10 @@
 package net.collectively.geode.mc.util;
 
-import net.collectively.geode.core.types.double3;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.world.World;
-import org.joml.Quaternionf;
 
 /**
  * Collection of client rendering utils.
@@ -37,13 +35,5 @@ public interface RenderHelper {
         }
 
         return 0;
-    }
-
-    static Quaternionf rotation(double3 radians) {
-        return new Quaternionf().rotateXYZ(
-                (float) radians.x(),
-                (float) radians.y(),
-                (float) radians.z()
-        );
     }
 }
