@@ -12,16 +12,13 @@
   "icon": "assets/geode/icon.png",
   "environment": "*",
   "entrypoints": {
-    "cardinal-components-entity": [
-      "net.collectively.geode.cardinal_components_api._internal.GeodeEntityComponentIndex"
-    ]
+    "main": ["dev.rosenoire.testmod.TestingMod"]
   },
   "mixins": [
     "geode.mixins.json"
   ],
   "custom": {
     "cardinal-components": [
-      "geode:player_camera_shake"
     ]
   },
   "depends": {
