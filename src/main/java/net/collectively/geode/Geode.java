@@ -1,40 +1,51 @@
 package net.collectively.geode;
 
-import net.collectively.geode.player.delays.PlayerDelays;
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
+import net.collectively.geode.mc._internal.GeodeMinecraft;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Geode implements ModInitializer {
+/**
+ * Main API class.
+ */
+public class Geode {
     public static final String GEODE_ID = "geode";
+
+    public static String HOOKED_MOD_ID;
     public static final Logger LOGGER = LoggerFactory.getLogger(GEODE_ID);
 
-    public static String MOD_ID;
-    public static void hook(String modIdentifier) {
-        LOGGER.info("Geode hooked on {}.", modIdentifier);
-        MOD_ID = modIdentifier;
-    }
-
-    @Override
-    public void onInitialize() {
-        LOGGER.info("Initialized Geode.");
-
-        // TODO: Temporary!
-        hook(GEODE_ID);
-        UseItemCallback.EVENT.register((playerEntity, world, hand) -> {
-            PlayerDelays.enqueue(playerEntity, 10, () -> playerEntity.sendMessage(Text.literal("Hi!"), false));
-            return ActionResult.PASS;
-        });
-    }
-
-    public static Identifier geodeId(String identifier) {
+    public static Identifier internalId(String identifier) {
         return Identifier.of(GEODE_ID, identifier);
     }
+
     public static Identifier id(String identifier) {
-        return Identifier.of(MOD_ID, identifier);
+        return Identifier.of(HOOKED_MOD_ID, identifier);
+    }
+
+    public static void setHookedMod(String hookedModId) {
+        HOOKED_MOD_ID = hookedModId;
+
+        initializeInternals();
+    }
+
+    private static void initializeInternals() {
+        GeodeMinecraft.initialize();
+
+        OnInitializedCallback.EVENT.invoker().onInitialized();
+    }
+
+    public interface OnInitializedCallback {
+        Event<OnInitializedCallback> EVENT = EventFactory.createArrayBacked(
+                OnInitializedCallback.class,
+                listeners -> () -> {
+                    for (OnInitializedCallback listener : listeners) {
+                        listener.onInitialized();
+                    }
+                }
+        );
+
+        void onInitialized();
     }
 }

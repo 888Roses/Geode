@@ -283,7 +283,7 @@ public interface math {
      * Returns the smallest (closest to negative infinity) {@code double} value that is greater than or equal to the
      * argument and is equal to a mathematical integer.
      *
-     * <p>Special Cases:
+     * Special Cases:
      * <ul>
      *     <li>If the argument value is already equal to a mathematical integer, then the result is the same as the
      *     argument.</li>
@@ -292,7 +292,7 @@ public interface math {
      *     <li>If the argument value is less than zero but greater than -1.0, then the result is negative zero.</li>
      * </ul>
      *
-     * <p>Note that the value of {@code Math.ceil(x)} is exactly the value of {@code -Math.floor(-x)}.
+     * Note that the value of {@code Math.ceil(x)} is exactly the value of {@code -Math.floor(-x)}.
      *
      * @param value A value.
      * @return The smallest (closest to negative infinity) floating-point value that is greater than or equal to the
@@ -308,7 +308,7 @@ public interface math {
      * Returns the smallest (closest to negative infinity) {@code float} value that is greater than or equal to the
      * argument and is equal to a mathematical integer.
      *
-     * <p>Special Cases:
+     * Special Cases:
      * <ul>
      *     <li>If the argument value is already equal to a mathematical integer, then the result is the same as the
      *     argument.</li>
@@ -317,7 +317,7 @@ public interface math {
      *     <li>If the argument value is less than zero but greater than -1.0, then the result is negative zero.</li>
      * </ul>
      *
-     * <p>Note that the value of {@code Math.ceil(x)} is exactly the value of {@code -Math.floor(-x)}.
+     * Note that the value of {@code Math.ceil(x)} is exactly the value of {@code -Math.floor(-x)}.
      *
      * @param value A value.
      * @return The smallest (closest to negative infinity) floating-point value that is greater than or equal to the
@@ -336,7 +336,7 @@ public interface math {
     /**
      * Returns the closest {@code long} to the argument, with ties rounding to positive infinity.
      *
-     * <p>Special Cases:
+     * Special Cases:
      * <ul>
      *     <li>If the argument is {@code NaN}, the result is {@code 0}.</li>
      *     <li>If the argument is negative infinity or any value less than or equal to the value of
@@ -357,7 +357,7 @@ public interface math {
     /**
      * Returns the closest {@code int} to the argument, with ties rounding to positive infinity.
      *
-     * <p>Special Cases:
+     * Special Cases:
      * <ul>
      *     <li>If the argument is {@code NaN}, the result is 0.</li>
      *     <li>If the argument is negative infinity or any value less than or equal to the value of
@@ -384,7 +384,7 @@ public interface math {
      *     <li>If the argument is not negative, the argument is returned.</li>
      *     <li>If the argument is negative, the negation of the argument is returned.</li>
      * </ul>
-     * <p>
+     *
      * <br/>
      * Special Cases:
      * <ul>
@@ -409,7 +409,7 @@ public interface math {
      *     <li>If the argument is not negative, the argument is returned.</li>
      *     <li>If the argument is negative, the negation of the argument is returned.</li>
      * </ul>
-     * <p>
+     *
      * <br/>
      * Special Cases:
      * <ul>
@@ -434,7 +434,7 @@ public interface math {
      *     <li>If the argument is not negative, the argument is returned.</li>
      *     <li>If the argument is negative, the negation of the argument is returned.</li>
      * </ul>
-     * <p/>
+     *
      * <br/>
      * Special Cases:
      * <ul>
@@ -459,7 +459,7 @@ public interface math {
      *     <li>If the argument is not negative, the argument is returned.</li>
      *     <li>If the argument is negative, the negation of the argument is returned.</li>
      * </ul>
-     * <p/>
+     *
      * <br/>
      * Special Cases:
      * <ul>
@@ -505,14 +505,14 @@ public interface math {
      * The inverse square root algorithm as imagined by the Quake III developers.
      *
      * <h6>Explanation:</h6>
-     * <p>
+     *
      * The magic of the code, even if you can't follow it, stands out as the {@code i = 0x5f3759df - (i>>1);} line.
      * Simplified, Newton-Raphson is an approximation that starts off with a guess and refines it with iteration.
      * Taking advantage of the nature of 32-bit x86 processors, {@code i}, an {@code int}, is initially set to the value
      * of the floating point number you want to take the inverse square of, using an integer cast. {@code i} is then set
      * to {@code 0x5f3759df}, minus itself shifted one bit to the right. The right shift drops the least significant bit
      * of {@code i}, essentially halving it.<br/><br/>
-     * <p>
+     *
      * Using the integer cast of the seeded value, {@code i} is reused and the initial guess for Newton is
      * calculated using the magic seed value minus a free divide by 2 courtesy of the CPU.<br/><br/>
      *
@@ -536,14 +536,14 @@ public interface math {
      * The inverse square root algorithm as imagined by the Quake III developers.
      *
      * <h6>Explanation:</h6>
-     * <p>
+     *
      * The magic of the code, even if you can't follow it, stands out as the {@code i = 0x5f3759df - (i>>1);} line.
      * Simplified, Newton-Raphson is an approximation that starts off with a guess and refines it with iteration.
      * Taking advantage of the nature of 32-bit x86 processors, {@code i}, an {@code int}, is initially set to the value
      * of the floating point number you want to take the inverse square of, using an integer cast. {@code i} is then set
      * to {@code 0x5f3759df}, minus itself shifted one bit to the right. The right shift drops the least significant bit
      * of {@code i}, essentially halving it.<br/><br/>
-     * <p>
+     *
      * Using the integer cast of the seeded value, {@code i} is reused and the initial guess for Newton is
      * calculated using the magic seed value minus a free divide by 2 courtesy of the CPU.<br/><br/>
      *
@@ -575,7 +575,7 @@ public interface math {
      *     <li>If the argument is positive infinity, then the result is positive infinity.</li>
      *     <li>If the argument is positive zero or negative zero, then the result is the same as the argument.</li>
      * </ul>
-     * <p>
+     *
      * Otherwise, the result is the {@code double} value closest to the true mathematical square root of the argument
      * value.
      *
@@ -589,6 +589,117 @@ public interface math {
     }
 
     // endregion
+
+    /**
+     * The {@code double} value that is closer than any other to
+     * <i>pi</i> (&pi;), the ratio of the circumference of a circle to
+     * its diameter.
+     */
+    double pi = Math.PI;
+
+
+    /// Returns the value of the first argument raised to the power of the
+    /// second argument. Special cases:
+    ///   - If the second argument is positive or negative zero, then the
+    ///     result is 1.0.
+    ///   - If the second argument is 1.0, then the result is the same as the
+    ///     first argument.
+    ///   - If the second argument is NaN, then the result is NaN.
+    ///   - If the first argument is NaN and the second argument is nonzero,
+    ///     then the result is NaN.
+    ///   - If the absolute value of the first argument is greater than 1
+    ///     and the second argument is positive infinity, or
+    ///   - the absolute value of the first argument is less than 1 and
+    ///     the second argument is negative infinity,
+    ///
+    /// then the result is positive infinity.
+    ///   - If the absolute value of the first argument is greater than 1 and
+    ///     the second argument is negative infinity, or
+    ///   - the absolute value of the
+    ///     first argument is less than 1 and the second argument is positive
+    ///     infinity,
+    ///
+    /// then the result is positive zero.
+    ///   - If the absolute value of the first argument equals 1 and the
+    ///     second argument is infinite, then the result is NaN.
+    ///   - If the first argument is positive zero and the second argument
+    ///     is greater than zero, or
+    ///   - the first argument is positive infinity and the second
+    ///     argument is less than zero,
+    ///
+    /// then the result is positive zero.
+    ///   - If the first argument is positive zero and the second argument
+    ///     is less than zero, or
+    ///   - the first argument is positive infinity and the second
+    ///     argument is greater than zero,
+    ///
+    /// then the result is positive infinity.
+    ///   - If the first argument is negative zero and the second argument
+    ///     is greater than zero but not a finite odd integer, or
+    ///   - the first argument is negative infinity and the second
+    ///     argument is less than zero but not a finite odd integer,
+    ///
+    /// then the result is positive zero.
+    ///   - If the first argument is negative zero and the second argument
+    ///     is a positive finite odd integer, or
+    ///   - the first argument is negative infinity and the second
+    ///     argument is a negative finite odd integer,
+    ///
+    /// then the result is negative zero.
+    ///   - If the first argument is negative zero and the second argument
+    ///     is less than zero but not a finite odd integer, or
+    ///   - the first argument is negative infinity and the second
+    ///     argument is greater than zero but not a finite odd integer,
+    ///
+    /// then the result is positive infinity.
+    ///   - If the first argument is negative zero and the second argument
+    ///     is a negative finite odd integer, or
+    ///   - the first argument is negative infinity and the second
+    ///     argument is a positive finite odd integer,
+    ///
+    /// then the result is negative infinity.
+    ///   - If the first argument is finite and less than zero
+    ///   - if the second argument is a finite even integer, the
+    ///     result is equal to the result of raising the absolute value of
+    ///     the first argument to the power of the second argument
+    ///   - if the second argument is a finite odd integer, the result
+    ///     is equal to the negative of the result of raising the absolute
+    ///     value of the first argument to the power of the second
+    ///     argument
+    ///   - if the second argument is finite and not an integer, then
+    ///     the result is NaN.
+    ///   - If both arguments are integers, then the result is exactly equal
+    ///     to the mathematical result of raising the first argument to the power
+    ///     of the second argument if that result can in fact be represented
+    ///     exactly as a `double` value.
+    ///
+    /// (In the foregoing descriptions, a floating-point value is
+    /// considered to be an integer if and only if it is finite and a
+    /// fixed point of the method [ceil][#ceil] or,
+    /// equivalently, a fixed point of the method floor.
+    /// A value is a fixed point of a one-argument
+    /// method if and only if the result of applying the method to the
+    /// value is equal to the value.)
+    ///
+    /// The computed result must be within 1 ulp of the exact result.
+    /// Results must be semi-monotonic.
+    ///
+    /// @apiNote
+    /// The special cases definitions of this method differ from the
+    /// special case definitions of the IEEE 754 recommended
+    /// `pow` operation for &plusmn;`1.0` raised to an infinite
+    /// power. This method treats such cases as indeterminate and
+    /// specifies a NaN is returned. The IEEE 754 specification treats
+    /// the infinite power as a large integer (large-magnitude
+    /// floating-point numbers are numerically integers, specifically
+    /// even integers) and therefore specifies `1.0` be returned.
+    ///
+    /// @param   a   the base.
+    /// @param   b   the exponent.
+    /// @return  the value `a`<sup>`b`</sup>.
+    static double pow(double a, double b) {
+        return StrictMath.pow(a, b); // default impl. delegates to StrictMath
+    }
 
     // region rad & deg
 
@@ -697,7 +808,7 @@ public interface math {
      * <li>If the argument is zero, then the result is a zero with the
      * same sign as the argument.</ul>
      *
-     * <p>The computed result must be within 1 ulp of the exact result.
+     * The computed result must be within 1 ulp of the exact result.
      * Results must be semi-monotonic.
      *
      * @param a an angle, in radians.
@@ -714,7 +825,7 @@ public interface math {
      * <li>If the argument is zero, then the result is {@code 1.0}.
      * </ul>
      *
-     * <p>The computed result must be within 1 ulp of the exact result.
+     * The computed result must be within 1 ulp of the exact result.
      * Results must be semi-monotonic.
      *
      * @param a an angle, in radians.
@@ -731,7 +842,7 @@ public interface math {
      * <li>If the argument is zero, then the result is a zero with the
      * same sign as the argument.</ul>
      *
-     * <p>The computed result must be within 1 ulp of the exact result.
+     * The computed result must be within 1 ulp of the exact result.
      * Results must be semi-monotonic.
      *
      * @param a an angle, in radians.
@@ -749,7 +860,7 @@ public interface math {
      * <li>If the argument is zero, then the result is a zero with the
      * same sign as the argument.</ul>
      *
-     * <p>The computed result must be within 1 ulp of the exact result.
+     * The computed result must be within 1 ulp of the exact result.
      * Results must be semi-monotonic.
      *
      * @param a the value whose arc sine is to be returned.
@@ -767,7 +878,7 @@ public interface math {
      * <li>If the argument is {@code 1.0}, the result is positive zero.
      * </ul>
      *
-     * <p>The computed result must be within 1 ulp of the exact result.
+     * The computed result must be within 1 ulp of the exact result.
      * Results must be semi-monotonic.
      *
      * @param a the value whose arc cosine is to be returned.
@@ -788,7 +899,7 @@ public interface math {
      * same sign as the input.
      * </ul>
      *
-     * <p>The computed result must be within 1 ulp of the exact result.
+     * The computed result must be within 1 ulp of the exact result.
      * Results must be semi-monotonic.
      *
      * @param a the value whose arc tangent is to be returned.
