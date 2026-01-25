@@ -1,4 +1,4 @@
-package net.collectively.v2;
+package net.collectively.v2.registration;
 
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.AbstractBlock;

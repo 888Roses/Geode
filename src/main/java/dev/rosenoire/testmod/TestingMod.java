@@ -1,7 +1,7 @@
 package dev.rosenoire.testmod;
 
 import net.collectively.v2.Geode;
-import net.collectively.v2.GeodeGroup;
+import net.collectively.v2.registration.GeodeGroup;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.Item;

@@ -1,4 +1,4 @@
-package net.collectively.v2;
+package net.collectively.v2.registration;
 
 import java.util.ArrayList;
 import java.util.List;

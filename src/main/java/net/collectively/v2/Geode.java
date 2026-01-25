@@ -1,5 +1,7 @@
 package net.collectively.v2;
 
+import net.collectively.v2.registration.Registerer;
+
 @SuppressWarnings("unused")
 public class Geode implements Registerer {
     private final String linkedModId;

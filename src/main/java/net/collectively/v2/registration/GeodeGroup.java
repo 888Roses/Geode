@@ -1,4 +1,4 @@
-package net.collectively.v2;
+package net.collectively.v2.registration;
 
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
