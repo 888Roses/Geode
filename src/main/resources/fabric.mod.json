@@ -13,7 +13,8 @@
   "environment": "*",
   "entrypoints": {
     "main": ["dev.rosenoire.testmod.TestingMod"],
-    "client": ["dev.rosenoire.testmod.TestingModClient"]
+    "client": ["dev.rosenoire.testmod.TestingModClient"],
+    "data": ["dev.rosenoire.testmod.TestingModDataGenerator"]
   },
   "mixins": [
     "geode.mixins.json"
