@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.Item;
@@ -386,6 +387,27 @@ public interface ServerRegisterer extends CommonRegisterer {
     /// @see #registerGroup(Identifier, ItemGroupBuilder, Item...)
     default GeodeGroup registerGroup(String identifier, ItemGroupBuilder builder, Item... content) {
         return registerGroup(id(identifier), builder, content);
+    }
+
+    // endregion
+
+    // region Enchantments
+
+    /// Registers a new [enchantment][GeodeEnchantment] using the given [identifier][Identifier].
+    /// @param identifier The identifier of the enchantment to create.
+    /// @return A new [GeodeEnchantment] notably containing the [RegistryKey] of the enchantment.
+    /// @see #registerEnchantment(String)
+    default GeodeEnchantment registerEnchantment(Identifier identifier) {
+        RegistryKey<Enchantment> enchantment = RegistryKey.of(RegistryKeys.ENCHANTMENT, identifier);
+        return new GeodeEnchantment(enchantment);
+    }
+
+    /// Registers a new [enchantment][GeodeEnchantment] using the given [identifier][Identifier].
+    /// @param identifier The identifier of the enchantment to create.
+    /// @return A new [GeodeEnchantment] notably containing the [RegistryKey] of the enchantment.
+    /// @see #registerEnchantment(Identifier)
+    default GeodeEnchantment registerEnchantment(String identifier) {
+        return registerEnchantment(id(identifier));
     }
 
     // endregion

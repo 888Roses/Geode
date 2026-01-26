@@ -1,19 +1,17 @@
 package net.collectively.v2.datagen;
 
-import net.collectively.v2.GeodeInternal;
 import net.collectively.v2.helpers.RegistryHelper;
 import net.collectively.v2.helpers.StringHelper;
+import net.collectively.v2.registration.GeodeEnchantment;
 import net.collectively.v2.registration.GeodeGroup;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.block.Block;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
 import net.minecraft.registry.*;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.jspecify.annotations.NonNull;
 
@@ -136,52 +134,25 @@ public abstract class GeodeLanguageGenerator extends FabricLanguageProvider {
         addEntityType(type, getHumanReadableName(type, RegistryKeys.ENTITY_TYPE).orElse(type.getTranslationKey()));
     }
 
-    /// Creates the name translation for the given [enchantment][Enchantment].
-    /// @see #addEnchantment(Enchantment)
-    // TODO: Very convoluted way of doing it. When creating the Enchantment registration process, create an Enchantment
-    //       structure containing the registry key as well as the enchantment itself so to facilitate the datagen process.
-    protected final void addEnchantment(Enchantment enchantment, String name) {
-        Identifier identifier = RegistryHelper.getIdentifierOf(registryLookup, RegistryKeys.ENCHANTMENT, enchantment);
-
-        if (identifier == null) {
-            GeodeInternal.LOGGER.error(ENCHANTMENT_NOT_FOUND_ERR, name);
-            return;
-        }
-
-        String translationKey = Util.createTranslationKey("enchantment", identifier);
-        translationBuilder.add(translationKey, name);
+    /// Creates the name translation for the given [enchantment][GeodeEnchantment].
+    /// @see #addEnchantment(GeodeEnchantment)
+    protected final void addEnchantment(GeodeEnchantment enchantment, String name) {
+        translationBuilder.addEnchantment(enchantment.registryKey(), name);
     }
 
-    /// Creates the name translation for the given [enchantment][Enchantment]. Its translation is automatically created using
+    /// Creates the name translation for the given [enchantment][GeodeEnchantment]. Its translation is automatically created using
     /// its identifier.
-    /// @see #addEnchantment(Enchantment, String)
-    protected final void addEnchantment(Enchantment enchantment) {
-        Identifier identifier = RegistryHelper.getIdentifierOf(registryLookup, RegistryKeys.ENCHANTMENT, enchantment);
-
-        if (identifier == null) {
-            GeodeInternal.LOGGER.error(ENCHANTMENT_NOT_FOUND_ERR);
-            return;
-        }
-
-        String translationKey = Util.createTranslationKey("enchantment", identifier);
-        String name = StringHelper.toHumanReadableName(identifier);
-        translationBuilder.add(translationKey, name);
+    /// @see #addEnchantment(GeodeEnchantment, String)
+    protected final void addEnchantment(GeodeEnchantment enchantment) {
+        addEnchantment(enchantment, StringHelper.toHumanReadableName(enchantment.registryKey().getValue()));
     }
 
-    /// Creates the description translation for the given [enchantment][Enchantment].
+    /// Creates the description translation for the given [enchantment][GeodeEnchantment].
     /// Note that this description will only be visible using mods such as [Enchantment Descriptions](https://modrinth.com/mod/enchantment-descriptions).
     /// The generated translation key is the same as any enchantment with the suffix `.desc` (i.e. `enchantment.example_mod.brutal.desc`).
-    protected final void addEnchantmentDescription(Enchantment enchantment, String description) {
-        Identifier identifier = RegistryHelper.getIdentifierOf(registryLookup, RegistryKeys.ENCHANTMENT, enchantment);
-
-        if (identifier == null) {
-            GeodeInternal.LOGGER.error(ENCHANTMENT_NOT_FOUND_ERR);
-            return;
-        }
-
-        String translationKey = Util.createTranslationKey("enchantment", identifier) + ".desc";
-        String name = StringHelper.toHumanReadableName(identifier);
-        translationBuilder.add(translationKey, name);
+    protected final void addEnchantmentDescription(GeodeEnchantment enchantment, String description) {
+        String translationKey = Util.createTranslationKey("enchantment", enchantment.registryKey().getValue()) + ".desc";
+        translationBuilder.add(translationKey, description);
     }
 
     /// Creates the name translation for the given [potion effect][StatusEffect].
