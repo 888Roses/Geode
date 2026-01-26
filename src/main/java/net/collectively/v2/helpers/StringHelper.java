@@ -43,8 +43,8 @@ public interface StringHelper {
     /// @return           The human-readable text.
     /// @apiNote          The given identifier `String` is not checked. You are responsible for making sure it respects the
     ///                   aforementioned identifier characteristics.
-    /// @see #toHumanName(Identifier) 
-    static String toHumanName(String identifier) {
+    /// @see #toHumanReadableName(Identifier)
+    static String toHumanReadableName(String identifier) {
         return Arrays.stream(identifier.split("_")).map(StringUtils::capitalize).collect(Collectors.joining(" "));
     }
     
@@ -59,8 +59,8 @@ public interface StringHelper {
     /// ```
     /// @param identifier The identifier whose path is going to be transformed into a human-readable text.
     /// @return The human-readable text.
-    /// @see #toHumanName(String) 
-    static String toHumanName(@NotNull Identifier identifier) {
-        return toHumanName(identifier.getPath());
+    /// @see #toHumanReadableName(String)
+    static String toHumanReadableName(@NotNull Identifier identifier) {
+        return toHumanReadableName(identifier.getPath());
     }
 }
