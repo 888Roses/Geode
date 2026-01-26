@@ -1,14 +1,19 @@
 package net.collectively.v2.datagen;
 
+import net.collectively.v2.GeodeInternal;
 import net.collectively.v2.helpers.RegistryHelper;
 import net.collectively.v2.helpers.StringHelper;
 import net.collectively.v2.registration.GeodeGroup;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.block.Block;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
 import net.minecraft.registry.*;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 import org.jspecify.annotations.NonNull;
 
@@ -17,6 +22,8 @@ import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings({"unused", "SameParameterValue"})
 public abstract class GeodeLanguageGenerator extends FabricLanguageProvider {
+    private static final String ENCHANTMENT_NOT_FOUND_ERR = "Couldn't find enchantment in enchantment registry! Make sure it is registered properly before running datagen.";
+
     // region Provider
 
     public GeodeLanguageGenerator(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
@@ -63,33 +70,131 @@ public abstract class GeodeLanguageGenerator extends FabricLanguageProvider {
 
     // region Generation
 
-    protected final void addBlock(Block block) {
-        translationBuilder.add(block, getHumanReadableName(block, RegistryKeys.BLOCK).orElse(block.getTranslationKey()));
-    }
+    /// Creates the name translation for the given [block][Block].
+    /// @see #addBlock(Block)
     protected final void addBlock(Block block, String name) {
         translationBuilder.add(block, name);
     }
 
-    protected final void addItem(Item item) {
-        translationBuilder.add(item, getHumanReadableName(item, RegistryKeys.ITEM).orElse(item.getTranslationKey()));
+    /// Creates the name translation for the given [block][Block]. Its translation is automatically created using its
+    /// identifier.
+    /// @see #addBlock(Block, String)
+    protected final void addBlock(Block block) {
+        translationBuilder.add(block, getHumanReadableName(block, RegistryKeys.BLOCK).orElse(block.getTranslationKey()));
     }
+
+    /// Creates the name translation for the given [item][Item].
+    /// @see #addItem(Item)
     protected final void addItem(Item item, String name) {
         translationBuilder.add(item, name);
     }
 
-    protected final void addSound(SoundEvent soundEvent) {
-        addSound(soundEvent, getHumanReadableName(soundEvent, RegistryKeys.SOUND_EVENT)
-                .orElse(Util.createTranslationKey("subtitles", soundEvent.id())));
-    }
-    protected final void addSound(SoundEvent soundEvent, String name) {
-        translationBuilder.add(soundEvent, name);
+    /// Creates the name translation for the given [item][Item]. Its translation is automatically created using its
+    /// identifier.
+    /// @see #addItem(Item, String)
+    protected final void addItem(Item item) {
+        translationBuilder.add(item, getHumanReadableName(item, RegistryKeys.ITEM).orElse(item.getTranslationKey()));
     }
 
+    /// Creates the subtitle translation for the given [sound][SoundEvent].
+    /// @see #addSound(SoundEvent)
+    protected final void addSound(SoundEvent soundEvent, String subtitle) {
+        translationBuilder.add(soundEvent, subtitle);
+    }
+
+    /// Creates the subtitle translation for the given [sound][SoundEvent]. Its translation is automatically created using
+    /// its identifier.
+    /// @see #addSound(SoundEvent, String)
+    protected final void addSound(SoundEvent soundEvent) {
+        addSound(soundEvent, getHumanReadableName(soundEvent, RegistryKeys.SOUND_EVENT)
+                .orElse(Util.createTranslationKey("subtitle", soundEvent.id())));
+    }
+
+    /// Creates the name translation for the given [item group][GeodeGroup].
+    /// @see #addItemGroup(GeodeGroup)
+    protected final void addItemGroup(GeodeGroup itemGroup, String name) {
+        translationBuilder.add(itemGroup.getTranslationKey(), name);
+    }
+
+    /// Creates the name translation for the given [item group][GeodeGroup]. Its translation is automatically created using
+    /// its identifier.
+    /// @see #addItemGroup(GeodeGroup, String)
     protected final void addItemGroup(GeodeGroup itemGroup) {
         addItemGroup(itemGroup, getHumanReadableName(itemGroup.itemGroup(), RegistryKeys.ITEM_GROUP).orElse(itemGroup.getTranslationKey()));
     }
-    protected final void addItemGroup(GeodeGroup itemGroup, String name) {
-        translationBuilder.add(itemGroup.getTranslationKey(), name);
+
+    /// Creates the name translation for the given [entity][EntityType].
+    /// @see #addEntityType(EntityType)
+    protected final void addEntityType(EntityType<?> type, String name) {
+        translationBuilder.add(type, name);
+    }
+
+    /// Creates the name translation for the given [entity][EntityType]. Its translation is automatically created using its
+    /// identifier.
+    /// @see #addEntityType(EntityType, String)
+    protected final void addEntityType(EntityType<?> type) {
+        addEntityType(type, getHumanReadableName(type, RegistryKeys.ENTITY_TYPE).orElse(type.getTranslationKey()));
+    }
+
+    /// Creates the name translation for the given [enchantment][Enchantment].
+    /// @see #addEnchantment(Enchantment)
+    // TODO: Very convoluted way of doing it. When creating the Enchantment registration process, create an Enchantment
+    //       structure containing the registry key as well as the enchantment itself so to facilitate the datagen process.
+    protected final void addEnchantment(Enchantment enchantment, String name) {
+        Identifier identifier = RegistryHelper.getIdentifierOf(registryLookup, RegistryKeys.ENCHANTMENT, enchantment);
+
+        if (identifier == null) {
+            GeodeInternal.LOGGER.error(ENCHANTMENT_NOT_FOUND_ERR, name);
+            return;
+        }
+
+        String translationKey = Util.createTranslationKey("enchantment", identifier);
+        translationBuilder.add(translationKey, name);
+    }
+
+    /// Creates the name translation for the given [enchantment][Enchantment]. Its translation is automatically created using
+    /// its identifier.
+    /// @see #addEnchantment(Enchantment, String)
+    protected final void addEnchantment(Enchantment enchantment) {
+        Identifier identifier = RegistryHelper.getIdentifierOf(registryLookup, RegistryKeys.ENCHANTMENT, enchantment);
+
+        if (identifier == null) {
+            GeodeInternal.LOGGER.error(ENCHANTMENT_NOT_FOUND_ERR);
+            return;
+        }
+
+        String translationKey = Util.createTranslationKey("enchantment", identifier);
+        String name = StringHelper.toHumanReadableName(identifier);
+        translationBuilder.add(translationKey, name);
+    }
+
+    /// Creates the description translation for the given [enchantment][Enchantment].
+    /// Note that this description will only be visible using mods such as [Enchantment Descriptions](https://modrinth.com/mod/enchantment-descriptions).
+    /// The generated translation key is the same as any enchantment with the suffix `.desc` (i.e. `enchantment.example_mod.brutal.desc`).
+    protected final void addEnchantmentDescription(Enchantment enchantment, String description) {
+        Identifier identifier = RegistryHelper.getIdentifierOf(registryLookup, RegistryKeys.ENCHANTMENT, enchantment);
+
+        if (identifier == null) {
+            GeodeInternal.LOGGER.error(ENCHANTMENT_NOT_FOUND_ERR);
+            return;
+        }
+
+        String translationKey = Util.createTranslationKey("enchantment", identifier) + ".desc";
+        String name = StringHelper.toHumanReadableName(identifier);
+        translationBuilder.add(translationKey, name);
+    }
+
+    /// Creates the name translation for the given [potion effect][StatusEffect].
+    /// @see #addStatusEffect(StatusEffect)
+    protected final void addStatusEffect(StatusEffect statusEffect, String name) {
+        translationBuilder.add(statusEffect.getTranslationKey(), name);
+    }
+
+    /// Creates the name translation for the given [potion effect][StatusEffect]. Its translation is automatically created
+    /// using its identifier.
+    /// @see #addStatusEffect(StatusEffect, String)
+    protected final void addStatusEffect(StatusEffect statusEffect) {
+        addStatusEffect(statusEffect, getHumanReadableName(statusEffect, RegistryKeys.STATUS_EFFECT).orElse(statusEffect.getTranslationKey()));
     }
 
     // endregion
