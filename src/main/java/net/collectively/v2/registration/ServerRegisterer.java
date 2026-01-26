@@ -20,7 +20,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
-public interface ServerRegisterer extends CommonRegisterer{
+public interface ServerRegisterer extends CommonRegisterer {
     // region Common
 
     /// Ends the registration stage of this [ServerRegisterer]. Should be called in the initialization step of your mod.
