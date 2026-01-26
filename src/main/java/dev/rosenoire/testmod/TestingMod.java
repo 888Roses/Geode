@@ -2,13 +2,12 @@ package dev.rosenoire.testmod;
 
 import net.collectively.v2.Geode;
 import net.collectively.v2.registration.GeodeGroup;
+import net.collectively.v2.registration.ItemGroupBuilder;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.MaceItem;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class TestingMod implements ModInitializer {
@@ -22,12 +21,9 @@ public class TestingMod implements ModInitializer {
     public static final Item ITEM_STRING_ITEM_SETTINGS = geode.registerItem("item_string_item_settings", MaceItem::new, new Item.Settings().maxCount(2));
     public static final Item ITEM_IDENTIFIER_ITEM_SETTINGS = geode.registerItem(Identifier.of(MOD_ID, "item_identifier_item_settings"), MaceItem::new, new Item.Settings().maxCount(2));
 
-    public static final GeodeGroup GROUP = geode.registerGroup(
-            "my_group",
-            FabricItemGroup.builder()
-                    .displayName(Text.literal("My Awesome Group!"))
-                    .icon(() -> new ItemStack(Items.GOLDEN_HELMET)),
-
+    public static final GeodeGroup EXAMPLE_MOD_GROUP = geode.registerGroup(
+            "example_mod",
+            ItemGroupBuilder.of().withIcon(() -> new ItemStack(Items.GOLDEN_HELMET)),
             ITEM_STRING,
             ITEM_IDENTIFIER,
             ITEM_STRING_SETTINGS,

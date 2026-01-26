@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
-/// Builder pattern for creating complicated [texts][Text] in a simple manner.
+/// ItemGroupBuilder pattern for creating complicated [texts][Text] in a simple manner.
 @SuppressWarnings("unused")
 public class TextBuilder {
     // region Static

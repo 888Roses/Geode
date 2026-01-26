@@ -335,7 +335,7 @@ public interface ServerRegisterer extends CommonRegisterer {
     /// Registers a new [entity type](EntityType) of type [T] with the given [Identifier] using the [EntityType.Builder].
     ///
     /// @param identifier The identifier of that entity.
-    /// @param builder    Builder class containing information about the registration of that entity.
+    /// @param builder    ItemGroupBuilder class containing information about the registration of that entity.
     /// @param <T>        The type of entity to register.
     /// @return The registered [EntityType] of type [T].
     /// @see #registerEntity(String, EntityType.Builder)
@@ -347,7 +347,7 @@ public interface ServerRegisterer extends CommonRegisterer {
     /// Registers a new [entity type](EntityType) of type [T] with the given [Identifier] using the [EntityType.Builder].
     ///
     /// @param identifier The identifier of that entity.
-    /// @param builder    Builder class containing information about the registration of that entity.
+    /// @param builder    ItemGroupBuilder class containing information about the registration of that entity.
     /// @param <T>        The type of entity to register.
     /// @return The registered [EntityType] of type [T].
     /// @apiNote The `String` identifier is turned into an [Identifier] with the namespace being the [#getLinkedModId()],
@@ -367,10 +367,10 @@ public interface ServerRegisterer extends CommonRegisterer {
     /// @param builder A [builder][ItemGroup.Builder] describing the created item group.
     /// @param content A list of every [item][Item] contained in the group.
     /// @return The created [group][GeodeGroup].
-    /// @see #registerGroup(String, ItemGroup.Builder, Item...)
-    default GeodeGroup registerGroup(Identifier identifier, ItemGroup.Builder builder, Item... content) {
+    /// @see #registerGroup(String, ItemGroupBuilder, Item...)
+    default GeodeGroup registerGroup(Identifier identifier, ItemGroupBuilder builder, Item... content) {
         RegistryKey<ItemGroup> registryKey = RegistryKey.of(Registries.ITEM_GROUP.getKey(), identifier);
-        GeodeGroup constructedGroup = new GeodeGroup(registryKey, builder.build(), () -> content);
+        GeodeGroup constructedGroup = new GeodeGroup(registryKey, builder.build(identifier).build(), () -> content);
         ServerCustomRegistries.GROUPS.add(constructedGroup);
         return constructedGroup;
     }
@@ -383,8 +383,8 @@ public interface ServerRegisterer extends CommonRegisterer {
     /// @return The created [group][GeodeGroup].
     /// @apiNote The `String` identifier is turned into an [Identifier] with the namespace being the [#getLinkedModId()],
     ///          using [#id(String)].
-    /// @see #registerGroup(Identifier, ItemGroup.Builder, Item...)
-    default GeodeGroup registerGroup(String identifier, ItemGroup.Builder builder, Item... content) {
+    /// @see #registerGroup(Identifier, ItemGroupBuilder, Item...)
+    default GeodeGroup registerGroup(String identifier, ItemGroupBuilder builder, Item... content) {
         return registerGroup(id(identifier), builder, content);
     }
 

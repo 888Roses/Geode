@@ -2,6 +2,7 @@ package net.collectively.v2.datagen;
 
 import net.collectively.v2.helpers.RegistryHelper;
 import net.collectively.v2.helpers.StringHelper;
+import net.collectively.v2.registration.GeodeGroup;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.minecraft.block.Block;
@@ -60,7 +61,6 @@ public abstract class GeodeLanguageGenerator extends FabricLanguageProvider {
 
     // endregion
 
-
     // region Generation
 
     protected final void addBlock(Block block) {
@@ -78,11 +78,18 @@ public abstract class GeodeLanguageGenerator extends FabricLanguageProvider {
     }
 
     protected final void addSound(SoundEvent soundEvent) {
-        translationBuilder.add(soundEvent, getHumanReadableName(soundEvent, RegistryKeys.SOUND_EVENT)
+        addSound(soundEvent, getHumanReadableName(soundEvent, RegistryKeys.SOUND_EVENT)
                 .orElse(Util.createTranslationKey("subtitles", soundEvent.id())));
     }
     protected final void addSound(SoundEvent soundEvent, String name) {
         translationBuilder.add(soundEvent, name);
+    }
+
+    protected final void addItemGroup(GeodeGroup itemGroup) {
+        addItemGroup(itemGroup, getHumanReadableName(itemGroup.itemGroup(), RegistryKeys.ITEM_GROUP).orElse(itemGroup.getTranslationKey()));
+    }
+    protected final void addItemGroup(GeodeGroup itemGroup, String name) {
+        translationBuilder.add(itemGroup.getTranslationKey(), name);
     }
 
     // endregion
