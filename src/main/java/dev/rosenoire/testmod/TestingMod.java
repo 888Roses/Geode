@@ -38,6 +38,7 @@ public class TestingMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        TestingModCommands.register();
         geode.register();
     }
 }
