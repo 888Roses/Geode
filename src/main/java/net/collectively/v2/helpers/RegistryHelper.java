@@ -1,14 +1,9 @@
 package net.collectively.v2.helpers;
 
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.*;
 import net.minecraft.util.Identifier;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-
-import java.util.Optional;
 
 /// Collection of utilities regarding the management of [registries][Registry] and alike.
 @SuppressWarnings("unused")
@@ -24,7 +19,15 @@ public interface RegistryHelper {
     /// @return The identifier of the given value as registered in the given registries, or null if it wasn't registered.
     static <T> @Nullable Identifier getIdentifierOf(RegistryWrapper.@NonNull WrapperLookup registryLookup,
                                                     @NonNull RegistryKey<Registry<T>> registryKey, @NonNull T value) {
-        Optional<RegistryEntry.Reference<Registry<T>>> optionalEntry = registryLookup.getOptionalEntry(registryKey);
-        return optionalEntry.map(x -> x.value().getId(value)).orElse(null);
+        // Black magic.
+        return registryLookup
+                .getOptional(registryKey)
+                .flatMap(registry -> registry
+                        .streamEntries()
+                        .filter(entry -> entry.value().equals(value))
+                        .findFirst()
+                        .map(entry -> entry.registryKey().getValue())
+                )
+                .orElse(null);
     }
 }
