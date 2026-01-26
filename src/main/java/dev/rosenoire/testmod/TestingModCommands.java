@@ -17,6 +17,7 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.world.World;
 import org.jspecify.annotations.NonNull;
 
 import java.util.Optional;
@@ -41,18 +42,16 @@ public interface TestingModCommands {
         );
     }
 
-    static <T> Optional<String> getHumanReadableName(RegistryWrapper.WrapperLookup registryLookup, @NonNull T value, @NonNull RegistryKey<Registry<T>> registryKey) {
-        return Optional.ofNullable(RegistryHelper.getIdentifierOf(registryLookup, registryKey, value)).map(StringHelper::toHumanReadableName);
+    private static <T> Optional<String> getHumanReadableName(World world, @NonNull T value, @NonNull RegistryKey<Registry<T>> registryKey) {
+        return Optional.ofNullable(RegistryHelper.getIdentifierOf(world, registryKey, value)).map(StringHelper::toHumanReadableName);
     }
 
     static int getHumanReadableRegistry(CommandContext<ServerCommandSource> ctx) {
         ServerCommandSource source = ctx.getSource();
         ServerWorld world = source.getWorld();
-        DynamicRegistryManager registries = world.getRegistryManager();
-
-        String itemName = getHumanReadableName(registries, TestingMod.ITEM_IDENTIFIER, RegistryKeys.ITEM).orElse("Unknown Item!");
+        String itemName = getHumanReadableName(world, TestingMod.ITEM_IDENTIFIER, RegistryKeys.ITEM).orElse("Unknown Item!");
+        String groupName = getHumanReadableName(world, TestingMod.EXAMPLE_MOD_GROUP.itemGroup(), RegistryKeys.ITEM_GROUP).orElse("Unknown Group!");
         source.sendMessage(TextBuilder.of().text("Item Name: ").text("\"" + itemName + "\"").formatting(Formatting.GREEN).build());
-        String groupName = getHumanReadableName(registries, TestingMod.EXAMPLE_MOD_GROUP.itemGroup(), RegistryKeys.ITEM_GROUP).orElse("Unknown Group!");
         source.sendMessage(TextBuilder.of().text("Group Name: ").text("\"" + groupName + "\"").formatting(Formatting.GREEN).build());
 
         return 1;
