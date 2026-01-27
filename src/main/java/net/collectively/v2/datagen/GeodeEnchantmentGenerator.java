@@ -15,25 +15,6 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public abstract class GeodeEnchantmentGenerator implements DataProvider {
-    public interface EnchantmentGenerator {
-        void accept(RegistryWrapper.WrapperLookup registries, Consumer<EnchantmentEntry> exporter);
-    }
-
-    public record EnchantmentEntry(Identifier id, Enchantment value) {
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-
-            if (obj instanceof EnchantmentEntry entry) {
-                return entry.id().equals(id());
-            }
-
-            return false;
-        }
-    }
-
     private final DataOutput.PathResolver pathResolver;
     private final List<EnchantmentGenerator> enchantmentGenerators;
     private final CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture;
@@ -46,22 +27,32 @@ public abstract class GeodeEnchantmentGenerator implements DataProvider {
 
     public CompletableFuture<?> run(DataWriter writer) {
         return this.registriesFuture.thenCompose((registries) -> {
-            Set<Identifier> set = new HashSet<>();
-            List<CompletableFuture<?>> list = new ArrayList<>();
-            Consumer<EnchantmentEntry> consumer = (enchantment) -> {
-                if (!set.add(enchantment.id())) {
-                    throw new IllegalStateException("Duplicate value " + enchantment.id());
-                } else {
-                    Path path = this.pathResolver.resolveJson(enchantment.id());
-                    list.add(DataProvider.writeCodecToPath(writer, registries, Enchantment.CODEC, enchantment.value(), path));
+            // Contains every already registered enchantment identifier, to check for duplicates.
+            Set<Identifier> identifierSet = new HashSet<>();
+            // Contains every serialized enchantments, ready to be written (when the future is complete).
+            List<CompletableFuture<?>> serializedEnchantments = new ArrayList<>();
+
+            Consumer<EnchantmentEntry> enchantmentSerializer = (enchantment) -> {
+                if (!identifierSet.add(enchantment.identifier())) {
+                    throw new IllegalStateException("Duplicate enchantment " + enchantment.identifier());
                 }
+
+                Path path = this.pathResolver.resolveJson(enchantment.identifier());
+                serializedEnchantments.add(DataProvider.writeCodecToPath(
+                        writer,
+                        registries,
+                        Enchantment.CODEC,
+                        enchantment.value(),
+                        path
+                ));
             };
 
+            // Writes every enchantment.
             for (EnchantmentGenerator enchantmentGenerator : this.enchantmentGenerators) {
-                enchantmentGenerator.accept(registries, consumer);
+                enchantmentGenerator.accept(registries, enchantmentSerializer);
             }
 
-            return CompletableFuture.allOf(list.toArray(CompletableFuture[]::new));
+            return CompletableFuture.allOf(serializedEnchantments.toArray(CompletableFuture[]::new));
         });
     }
 
