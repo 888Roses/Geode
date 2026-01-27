@@ -14,5 +14,6 @@ public class ModLangGenerator extends GeodeLanguageGenerator {
     @Override
     protected void generate() {
         addItemGroup(TestingMod.EXAMPLE_MOD_GROUP);
+        addEnchantment(TestingMod.SHARPNESS_COPYCAT, "Sharpness Copycat");
     }
 }

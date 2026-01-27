@@ -33,7 +33,7 @@ public class TestingMod implements ModInitializer {
             ITEM_IDENTIFIER_ITEM_SETTINGS
     );
 
-    public static final GeodeEnchantment MEANING = geode.registerEnchantment("meaning");
+    public static final GeodeEnchantment SHARPNESS_COPYCAT = geode.registerEnchantment("sharpness_copycat");
 
     @Override
     public void onInitialize() {
