@@ -1,0 +1,20 @@
+{
+  "anvil_cost": 15,
+  "description": {
+    "translate": "enchantment.testing_mod.meaning"
+  },
+  "max_cost": {
+    "base": 1,
+    "per_level_above_first": 1
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 1,
+    "per_level_above_first": 1
+  },
+  "slots": [
+    "mainhand"
+  ],
+  "supported_items": "#minecraft:swords",
+  "weight": 15
+}

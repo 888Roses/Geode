@@ -1,6 +1,7 @@
 package dev.rosenoire.testmod;
 
 import net.collectively.v2.Geode;
+import net.collectively.v2.registration.GeodeEnchantment;
 import net.collectively.v2.registration.GeodeGroup;
 import net.collectively.v2.registration.ItemGroupBuilder;
 import net.fabricmc.api.ModInitializer;
@@ -31,6 +32,8 @@ public class TestingMod implements ModInitializer {
             ITEM_STRING_ITEM_SETTINGS,
             ITEM_IDENTIFIER_ITEM_SETTINGS
     );
+
+    public static final GeodeEnchantment MEANING = geode.registerEnchantment("meaning");
 
     @Override
     public void onInitialize() {

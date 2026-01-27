@@ -8,5 +8,6 @@ public class TestingModDataGenerator implements DataGeneratorEntrypoint {
     public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
         pack.addProvider(ModLangGenerator::new);
+        pack.addProvider(ModEnchantmentGenerator::new);
     }
 }
