@@ -38,13 +38,26 @@ repositories {
 
 dependencies {
     // Adding a Geode dependency for Fabric.
-    modImplementation include("maven.modrinth:geode:fabric-${project.geode}")
+    modImplementation "maven.modrinth:geode:${project.geode_version}"
 }
 ```
+
+## ❓ How to get the version
+1. Go to `versions`.
+2. Click on `more options` on the latest version of the mod.
+3. Select `Copy ID`.
+<details>
+<summary>Visual Guide</summary>
+
+![Instructions](https://cdn.modrinth.com/data/cached_images/c77348aebc5ac4da1eb446d057c1e133a5d5109b.png)
+
+</details>
+
 
 <br/>
 <hr/>
 
 <sub>@ 2026 The Collective. All Rights Reserved.</sub><br/>
 <sub>Geode is licensed under Apache-2.0.</sub>
+
 
