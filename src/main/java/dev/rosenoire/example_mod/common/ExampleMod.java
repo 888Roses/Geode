@@ -4,7 +4,7 @@ import dev.rosenoire.example_mod.common.index.ModCommands;
 import dev.rosenoire.example_mod.common.index.ModEnchantments;
 import dev.rosenoire.example_mod.common.index.ModItemGroups;
 import dev.rosenoire.example_mod.common.index.ModItems;
-import net.collectively.v2.Geode;
+import net.collectively.geode.Geode;
 import net.fabricmc.api.ModInitializer;
 
 public class ExampleMod implements ModInitializer {

@@ -1,7 +1,7 @@
 package dev.rosenoire.example_mod.data;
 
 import dev.rosenoire.example_mod.common.index.ModEnchantments;
-import net.collectively.v2.datagen.GeodeDataGeneration;
+import net.collectively.geode.datagen.GeodeDataGeneration;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.registry.RegistryWrapper;

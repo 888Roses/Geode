@@ -1,7 +1,7 @@
 package dev.rosenoire.example_mod.common.index;
 
-import net.collectively.v2.registration.GeodeGroup;
-import net.collectively.v2.registration.ItemGroupBuilder;
+import net.collectively.geode.registration.GeodeGroup;
+import net.collectively.geode.registration.ItemGroupBuilder;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 

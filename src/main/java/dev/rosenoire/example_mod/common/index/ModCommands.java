@@ -2,11 +2,11 @@ package dev.rosenoire.example_mod.common.index;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import net.collectively.v2.commands.DefaultSuggestionProviders;
-import net.collectively.v2.helpers.RegistryHelper;
-import net.collectively.v2.helpers.StringHelper;
-import net.collectively.v2.math.StandardEasingFunction;
-import net.collectively.v2.text.TextBuilder;
+import net.collectively.geode.commands.DefaultSuggestionProviders;
+import net.collectively.geode.helpers.RegistryHelper;
+import net.collectively.geode.helpers.StringHelper;
+import net.collectively.geode.math.StandardEasingFunction;
+import net.collectively.geode.text.TextBuilder;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.command.suggestion.SuggestionProviders;
 import net.minecraft.registry.*;
