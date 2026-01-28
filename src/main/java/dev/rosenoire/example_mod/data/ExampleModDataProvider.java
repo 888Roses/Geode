@@ -1,6 +1,8 @@
 package dev.rosenoire.example_mod.data;
 
 import dev.rosenoire.example_mod.common.index.ModEnchantments;
+import dev.rosenoire.example_mod.common.index.ModItemGroups;
+import dev.rosenoire.example_mod.common.index.ModItems;
 import net.collectively.geode.datagen.GeodeDataGeneration;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -17,6 +19,9 @@ public class ExampleModDataProvider extends GeodeDataGeneration {
 
     @Override
     protected void generate() {
+        addItemGroup(ModItemGroups.EXAMPLE_MOD_GROUP)
+                .autoTranslate();
+
         addEnchantment(ModEnchantments.SHARPNESS_COPYCAT)
                 .autoTranslate()
                 .enchantment(ItemTags.SHARP_WEAPON_ENCHANTABLE)

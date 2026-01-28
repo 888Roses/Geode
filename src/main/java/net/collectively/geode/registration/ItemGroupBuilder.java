@@ -14,7 +14,7 @@ public final class ItemGroupBuilder {
     private static final ItemGroup.EntryCollector EMPTY = (displayContext, entries) -> {
     };
 
-    private Text displayName = Text.empty();
+    private Text displayName = null;
     private Supplier<ItemStack> iconSupplier = () -> ItemStack.EMPTY;
     private Identifier texture = DEFAULT_TEXTURE;
 
@@ -60,13 +60,15 @@ public final class ItemGroupBuilder {
     }
 
     public FabricItemGroupBuilderImpl build(Identifier identifier) {
+        if (displayName == null || displayName.equals(Text.empty())) {
+            displayName = Text.translatable(GeodeItemGroup.getTranslationKey(identifier));
+        }
+
         FabricItemGroupBuilderImpl builder = (FabricItemGroupBuilderImpl) new FabricItemGroupBuilderImpl()
                 .displayName(displayName)
                 .icon(iconSupplier)
                 .entries(EMPTY)
                 .texture(texture);
-
-        if (displayName == null) builder.displayName(Text.translatable(GeodeItemGroup.getTranslationKey(identifier)));
 
         if (isSpecial) builder.special();
         if (!shouldRenderName) builder.noRenderedName();

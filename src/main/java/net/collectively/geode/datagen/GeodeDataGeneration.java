@@ -3,6 +3,7 @@ package net.collectively.geode.datagen;
 import net.collectively.geode.helpers.RegistryHelper;
 import net.collectively.geode.helpers.StringHelper;
 import net.collectively.geode.registration.GeodeEnchantment;
+import net.collectively.geode.registration.GeodeItemGroup;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
@@ -35,7 +36,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -55,13 +55,21 @@ public abstract class GeodeDataGeneration implements DataProvider {
     }
 
     /// Registers a new [enchantment runnable][EnchantmentRunnable] to generate using data generation using the given
-    /// [enchantment][GeodeEnchantment]. It returns the registered enchantment which acts as a builder to customize the
-    /// behavior of that enchantment.
+    /// [enchantment][GeodeEnchantment]. It returns the registered enchantment which acts as a builder to customize its behavior.
     /// @param geodeEnchantment The enchantment to register.
     /// @return A builder pattern representing the registered enchantment to customize its behavior.
     @SuppressWarnings("SameParameterValue")
     protected final EnchantmentRunnable addEnchantment(GeodeEnchantment geodeEnchantment) {
         return addRunnable(new EnchantmentRunnable(geodeEnchantment));
+    }
+
+    /// Registers a new [item group runnable][ItemGroupRunnable] to generate using data generation using the given [item group][GeodeItemGroup].
+    /// It returns the registered item group which acts as a builder to customize its behavior.
+    /// @param itemGroup The item group to register.
+    /// @return A builder pattern representing the registered item group to customize its behavior.
+    @SuppressWarnings("SameParameterValue")
+    protected final ItemGroupRunnable addItemGroup(GeodeItemGroup itemGroup) {
+        return addRunnable(new ItemGroupRunnable(itemGroup));
     }
 
     /// Bootstrap method called to request every [runnable][DataGenRunnable] to generate. Call any runnable registering
@@ -170,7 +178,7 @@ public abstract class GeodeDataGeneration implements DataProvider {
             }
 
             @Override
-            protected void configure(RegistryWrapper.@NonNull WrapperLookup wrapperLookup) {
+            protected void configure(RegistryWrapper.@NotNull WrapperLookup wrapperLookup) {
                 registeredEnchantmentTags.forEach((enchantment, identifiers) -> {
                     TagBuilder builder = getTagBuilder(enchantment);
                     identifiers.forEach(builder::addOptional);
@@ -312,6 +320,43 @@ public abstract class GeodeDataGeneration implements DataProvider {
         /// Adds this enchantment to the given tag.
         public EnchantmentRunnable tag(TagKey<Enchantment> tag) {
             tags.add(tag);
+            return this;
+        }
+
+        // endregion
+    }
+
+    public static final class ItemGroupRunnable extends DataGenRunnable<GeodeItemGroup> implements
+            Translatable<ItemGroupRunnable>,
+            AutoTranslatable<ItemGroupRunnable> {
+
+        // region Essentials
+
+        public ItemGroupRunnable(GeodeItemGroup value) {
+            super(value);
+        }
+
+        @Override
+        protected void run(RegistryWrapper.@NotNull WrapperLookup registries, DataGen dataGen) {
+            dataGen.translations.add(value.getTranslationKey(), nameTranslation.complete(registries));
+        }
+
+        // endregion
+
+        // region Translate
+
+        /// The translation of the name of the enchantment. Cannot be null.
+        private IncompleteGetter<String> nameTranslation;
+
+        @Override
+        public ItemGroupRunnable translate(String translation) {
+            nameTranslation = registries -> translation;
+            return this;
+        }
+
+        @Override
+        public ItemGroupRunnable autoTranslate() {
+            nameTranslation = registries -> StringHelper.toHumanReadableName(value.registryKey().getValue());
             return this;
         }
 
