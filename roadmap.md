@@ -1,15 +1,11 @@
 # 🛣️ Roadmap
-This is the Geode roadmap containing features to add.
 
-## 🛠️ Registration
-▢ `StatusEffect`
+▢ 🛠️ Registration of `StatusEffect`.
 
-▢ `LootTable`
+▢ 🛠️ Registration of `LootTable`.
 
-## 📐 Math
-▢ Evaluating a mathematical operation contained in a `String`.
+▢ 📖 Data generation for `StatusEffect`.
 
-## 📖 Data Generation
-▢ `StatusEffect`
+▢ 📖 Data generation for `LootTable`.
 
-▢ `LootTable`
+▢ 📐 Evaluating a mathematical operation contained in a `String`.
