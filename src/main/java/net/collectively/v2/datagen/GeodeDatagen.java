@@ -89,13 +89,13 @@ public abstract class GeodeDatagen implements DataProvider {
     protected final IncompleteEnchantmentBuilder enchantment(IncompleteDefinition incompleteDefinition) {
         return IncompleteEnchantment.builder(incompleteDefinition);
     }
-    protected final IncompleteDefinitionBuilder enchantmentDefinition(IncompleteGetter<RegistryEntryList<Item>> supportedItems) {
+    protected final IncompleteDefinitionBuilder enchantmentDefinition(CompletableRegistryGetter<RegistryEntryList<Item>> supportedItems) {
         return IncompleteDefinition.builder(supportedItems);
     }
 
     protected record IncompleteEnchantment(Text description,
                                            IncompleteDefinition incompleteDefinition,
-                                           IncompleteGetter<RegistryEntryList<Enchantment>> exclusiveSet,
+                                           CompletableRegistryGetter<RegistryEntryList<Enchantment>> exclusiveSet,
                                            ComponentMap effects) {
         public Enchantment complete(RegistryWrapper.WrapperLookup lookup) {
             return new Enchantment(description, incompleteDefinition.complete(lookup), exclusiveSet.complete(lookup), effects);
@@ -108,7 +108,7 @@ public abstract class GeodeDatagen implements DataProvider {
 
     protected static class IncompleteEnchantmentBuilder {
         private final IncompleteDefinition incompleteDefinition;
-        private IncompleteGetter<RegistryEntryList<Enchantment>> exclusiveSet = lookup -> RegistryEntryList.of();
+        private CompletableRegistryGetter<RegistryEntryList<Enchantment>> exclusiveSet = lookup -> RegistryEntryList.of();
         private final Map<ComponentType<?>, List<?>> effectLists = new HashMap<>();
         private final ComponentMap.Builder effectMap = ComponentMap.builder();
 
@@ -116,7 +116,7 @@ public abstract class GeodeDatagen implements DataProvider {
             this.incompleteDefinition = incompleteDefinition;
         }
 
-        public @NonNull IncompleteEnchantmentBuilder exclusiveSet(@NonNull IncompleteGetter<RegistryEntryList<Enchantment>> incompleteExclusiveSet) {
+        public @NonNull IncompleteEnchantmentBuilder exclusiveSet(@NonNull CompletableRegistryGetter<RegistryEntryList<Enchantment>> incompleteExclusiveSet) {
             this.exclusiveSet = incompleteExclusiveSet;
             return this;
         }
@@ -175,8 +175,8 @@ public abstract class GeodeDatagen implements DataProvider {
         }
     }
 
-    protected record IncompleteDefinition(IncompleteGetter<RegistryEntryList<Item>> supportedItems,
-                                          Optional<IncompleteGetter<RegistryEntryList<Item>>> primaryItems,
+    protected record IncompleteDefinition(CompletableRegistryGetter<RegistryEntryList<Item>> supportedItems,
+                                          Optional<CompletableRegistryGetter<RegistryEntryList<Item>>> primaryItems,
                                           int weight,
                                           int maxLevel,
                                           Enchantment.Cost minCost,
@@ -198,7 +198,7 @@ public abstract class GeodeDatagen implements DataProvider {
             );
         }
 
-        public static IncompleteDefinitionBuilder builder(IncompleteGetter<RegistryEntryList<Item>> supportedItems) {
+        public static IncompleteDefinitionBuilder builder(CompletableRegistryGetter<RegistryEntryList<Item>> supportedItems) {
             return new IncompleteDefinitionBuilder(supportedItems);
         }
     }
@@ -206,8 +206,8 @@ public abstract class GeodeDatagen implements DataProvider {
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     protected static class IncompleteDefinitionBuilder {
         private final List<AttributeModifierSlot> slots = new ArrayList<>();
-        private final IncompleteGetter<RegistryEntryList<Item>> supportedItems;
-        private Optional<IncompleteGetter<RegistryEntryList<Item>>> primaryItems = Optional.empty();
+        private final CompletableRegistryGetter<RegistryEntryList<Item>> supportedItems;
+        private Optional<CompletableRegistryGetter<RegistryEntryList<Item>>> primaryItems = Optional.empty();
         private int weight = 1;
         private int maxLevel = 1;
         private Enchantment.Cost minCost = new Enchantment.Cost(1, 1);
@@ -215,11 +215,11 @@ public abstract class GeodeDatagen implements DataProvider {
         private int anvilCost = 1;
         private boolean isTreasure;
 
-        private IncompleteDefinitionBuilder(IncompleteGetter<RegistryEntryList<Item>> supportedItems) {
+        private IncompleteDefinitionBuilder(CompletableRegistryGetter<RegistryEntryList<Item>> supportedItems) {
             this.supportedItems = supportedItems;
         }
 
-        public @NonNull IncompleteDefinitionBuilder primaryItems(@Nullable IncompleteGetter<RegistryEntryList<Item>> primaryItems) {this.primaryItems=Optional.ofNullable(primaryItems);return this;}
+        public @NonNull IncompleteDefinitionBuilder primaryItems(@Nullable CompletableRegistryGetter<RegistryEntryList<Item>> primaryItems) {this.primaryItems=Optional.ofNullable(primaryItems);return this;}
         public @NonNull IncompleteDefinitionBuilder weight(int weight) {this.weight=weight;return this;}
         public @NonNull IncompleteDefinitionBuilder maxLevel(int maxLevel) {this.maxLevel=maxLevel;return this;}
         public @NonNull IncompleteDefinitionBuilder minCost(int base, int perLevelAboveFirst) {this.minCost=new Enchantment.Cost(base,perLevelAboveFirst);return this;}
@@ -240,11 +240,15 @@ public abstract class GeodeDatagen implements DataProvider {
     protected final <T> RegistryWrapper.Impl<T> getRegistry(RegistryWrapper.@NotNull WrapperLookup registries, RegistryKey<? extends Registry<T>> registryKey) {
         return registries.getOrThrow(registryKey);
     }
-    protected final IncompleteGetter<RegistryEntryList<Item>> itemTag(TagKey<Item> tag) {return registries -> getRegistry(registries, RegistryKeys.ITEM).getOrThrow(tag);}
-    protected final IncompleteGetter<RegistryEntryList<DamageType>> damageTag(TagKey<DamageType> tag) {return registries -> getRegistry(registries, RegistryKeys.DAMAGE_TYPE).getOrThrow(tag);}
-    protected final IncompleteGetter<RegistryEntryList<Enchantment>> enchantmentTag(TagKey<Enchantment> tag) {return registries -> getRegistry(registries, RegistryKeys.ENCHANTMENT).getOrThrow(tag);}
-    protected final IncompleteGetter<RegistryEntryList<Block>> blockTag(TagKey<Block> tag) {return registries -> getRegistry(registries, RegistryKeys.BLOCK).getOrThrow(tag);}
-    protected final IncompleteGetter<RegistryEntryList<EntityType<?>>> entityTypeTag(TagKey<EntityType<?>> tag) {return registries -> getRegistry(registries, RegistryKeys.ENTITY_TYPE).getOrThrow(tag);}
+    protected final CompletableRegistryGetter<RegistryEntryList<Item>> itemTag(TagKey<Item> tag) {return registries -> getRegistry(registries, RegistryKeys.ITEM).getOrThrow(tag);}
+    protected final CompletableRegistryGetter<RegistryEntryList<DamageType>> damageTag(TagKey<DamageType> tag) {return registries -> getRegistry(registries, RegistryKeys.DAMAGE_TYPE).getOrThrow(tag);}
+    protected final CompletableRegistryGetter<RegistryEntryList<Enchantment>> enchantmentTag(TagKey<Enchantment> tag) {return registries -> getRegistry(registries, RegistryKeys.ENCHANTMENT).getOrThrow(tag);}
+    protected final CompletableRegistryGetter<RegistryEntryList<Block>> blockTag(TagKey<Block> tag) {return registries -> getRegistry(registries, RegistryKeys.BLOCK).getOrThrow(tag);}
+    protected final CompletableRegistryGetter<RegistryEntryList<EntityType<?>>> entityTypeTag(TagKey<EntityType<?>> tag) {return registries -> getRegistry(registries, RegistryKeys.ENTITY_TYPE).getOrThrow(tag);}
+
+    // endregion
+
+    // region Translation
 
     // endregion
 

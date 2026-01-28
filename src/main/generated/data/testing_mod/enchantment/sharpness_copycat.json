@@ -3,21 +3,6 @@
   "description": {
     "translate": "enchantment.testing_mod.sharpness_copycat"
   },
-  "effects": {
-    "minecraft:damage": [
-      {
-        "effect": {
-          "type": "minecraft:add",
-          "value": {
-            "type": "minecraft:linear",
-            "base": 1.0,
-            "per_level_above_first": 0.5
-          }
-        }
-      }
-    ]
-  },
-  "exclusive_set": "#minecraft:exclusive_set/damage",
   "max_cost": {
     "base": 21,
     "per_level_above_first": 11
