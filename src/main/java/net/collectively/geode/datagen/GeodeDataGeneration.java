@@ -54,14 +54,14 @@ public abstract class GeodeDataGeneration implements DataProvider {
         return (T) registeredRunnable.getLast();
     }
 
-    /// Registers a new [enchantment runnable][EnchantmentData] to generate using data generation using the given
+    /// Registers a new [enchantment runnable][EnchantmentRunnable] to generate using data generation using the given
     /// [enchantment][GeodeEnchantment]. It returns the registered enchantment which acts as a builder to customize the
     /// behavior of that enchantment.
     /// @param geodeEnchantment The enchantment to register.
     /// @return A builder pattern representing the registered enchantment to customize its behavior.
     @SuppressWarnings("SameParameterValue")
-    protected final EnchantmentData addEnchantment(GeodeEnchantment geodeEnchantment) {
-        return addRunnable(new EnchantmentData(geodeEnchantment));
+    protected final EnchantmentRunnable addEnchantment(GeodeEnchantment geodeEnchantment) {
+        return addRunnable(new EnchantmentRunnable(geodeEnchantment));
     }
 
     /// Bootstrap method called to request every [runnable][DataGenRunnable] to generate. Call any runnable registering
@@ -210,15 +210,19 @@ public abstract class GeodeDataGeneration implements DataProvider {
         }
     }
 
+    // endregion
+
+    // region Runnable
+
     /// Represents a [runnable][DataGenRunnable] generating the DataGen of an [enchantment][GeodeEnchantment].
     @SuppressWarnings("unused")
-    public static final class EnchantmentData extends DataGenRunnable<GeodeEnchantment> implements
-            Translatable<EnchantmentData>,
-            AutoTranslatable<EnchantmentData> {
+    public static final class EnchantmentRunnable extends DataGenRunnable<GeodeEnchantment> implements
+            Translatable<EnchantmentRunnable>,
+            AutoTranslatable<EnchantmentRunnable> {
 
         // region Essentials
 
-        public EnchantmentData(GeodeEnchantment target) {
+        public EnchantmentRunnable(GeodeEnchantment target) {
             super(target);
         }
 
@@ -262,13 +266,13 @@ public abstract class GeodeDataGeneration implements DataProvider {
         private String descriptionTranslation;
 
         @Override
-        public EnchantmentData translate(String translation) {
+        public EnchantmentRunnable translate(String translation) {
             nameTranslation = registries -> translation;
             return this;
         }
 
         @Override
-        public EnchantmentData autoTranslate() {
+        public EnchantmentRunnable autoTranslate() {
             nameTranslation = registries -> StringHelper.toHumanReadableName(value.registryKey().getValue());
             return this;
         }
@@ -277,7 +281,7 @@ public abstract class GeodeDataGeneration implements DataProvider {
         /// supported; users will require a mod like
         /// [Enchantment Descriptions by Darkhax](https://modrinth.com/mod/enchantment-descriptions) to be able to see them.
         /// While this is optional, it is good practice to include it.
-        public EnchantmentData translateDescription(String translation) {
+        public EnchantmentRunnable translateDescription(String translation) {
             descriptionTranslation = translation;
             return this;
         }
@@ -306,7 +310,7 @@ public abstract class GeodeDataGeneration implements DataProvider {
         private final List<TagKey<Enchantment>> tags = new ArrayList<>();
 
         /// Adds this enchantment to the given tag.
-        public EnchantmentData tag(TagKey<Enchantment> tag) {
+        public EnchantmentRunnable tag(TagKey<Enchantment> tag) {
             tags.add(tag);
             return this;
         }
@@ -385,19 +389,19 @@ public abstract class GeodeDataGeneration implements DataProvider {
     /// [IncompleteEnchantment#build()] to register it and go back to the parent [runnable][DataGenRunnable].
     @SuppressWarnings("unused")
     public static final class IncompleteEnchantment {
-        private final EnchantmentData parent;
+        private final EnchantmentRunnable parent;
         private final IncompleteDefinition definition;
         private IncompleteGetter<RegistryEntryList<Enchantment>> exclusiveSet = lookup -> RegistryEntryList.of();
         private final Map<ComponentType<?>, List<?>> effectLists = new HashMap<>();
         private final ComponentMap.Builder effectMap = ComponentMap.builder();
 
-        private IncompleteEnchantment(EnchantmentData parent, IncompleteGetter<RegistryEntryList<Item>> supportedItems) {
+        private IncompleteEnchantment(EnchantmentRunnable parent, IncompleteGetter<RegistryEntryList<Item>> supportedItems) {
             this.parent = parent;
             this.definition = new IncompleteDefinition(supportedItems);
         }
 
         /// Registers this enchantment to be generated in DataGen.
-        public EnchantmentData build() {
+        public EnchantmentRunnable build() {
             parent.enchantment = this;
             return this.parent;
         }
