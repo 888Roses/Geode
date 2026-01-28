@@ -12,9 +12,15 @@
   "icon": "assets/geode/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": ["dev.rosenoire.testmod.TestingMod"],
-    "client": ["dev.rosenoire.testmod.TestingModClient"],
-    "fabric-datagen": ["dev.rosenoire.testmod.TestingModDataGenerator"]
+    "main": [
+      "dev.rosenoire.example_mod.common.ExampleMod"
+    ],
+    "client": [
+      "dev.rosenoire.example_mod.client.ExampleModClient"
+    ],
+    "fabric-datagen": [
+      "dev.rosenoire.example_mod.data.ExampleModDataGenerator"
+    ]
   },
   "mixins": [
     "geode.mixins.json"
