@@ -1,4 +1,4 @@
-[Banner](/banner.png)
+![Banner](/banner.png)
 
 [![Fabric Icon](https://cdn.modrinth.com/data/cached_images/eb2e255e5856e26b67266ee48a4d5dfc0b0b65b1_0.webp)
 ](https://modrinth.com/mod/fabric-api)
@@ -15,4 +15,5 @@ It will do nothing on its own and its only purpose is to act as a dependency for
 You are free to use this library for your own mods, there's extensive documentation, which you can find by clicking: [Geode Wiki](https://github.com/888Roses/Geode).
 
 _This library will not be ported to Forge/NeoForge._
+
 
