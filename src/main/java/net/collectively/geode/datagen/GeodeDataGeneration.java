@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.block.Block;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -19,6 +20,7 @@ import net.minecraft.enchantment.effect.AttributeEnchantmentEffect;
 import net.minecraft.enchantment.effect.EnchantmentEffectEntry;
 import net.minecraft.enchantment.effect.EnchantmentEffectTarget;
 import net.minecraft.enchantment.effect.TargetedEnchantmentEffect;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageType;
 import net.minecraft.item.Item;
@@ -31,6 +33,7 @@ import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.EnchantmentTags;
 import net.minecraft.registry.tag.TagBuilder;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Unit;
@@ -40,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
+@SuppressWarnings({"SameParameterValue", "unused"})
 public abstract class GeodeDataGeneration implements DataProvider {
     // region Resources
 
@@ -54,23 +58,13 @@ public abstract class GeodeDataGeneration implements DataProvider {
         return (T) registeredRunnable.getLast();
     }
 
-    /// Registers a new [enchantment runnable][EnchantmentRunnable] to generate using data generation using the given
-    /// [enchantment][GeodeEnchantment]. It returns the registered enchantment which acts as a builder to customize its behavior.
-    /// @param geodeEnchantment The enchantment to register.
-    /// @return A builder pattern representing the registered enchantment to customize its behavior.
-    @SuppressWarnings("SameParameterValue")
-    protected final EnchantmentRunnable addEnchantment(GeodeEnchantment geodeEnchantment) {
-        return addRunnable(new EnchantmentRunnable(geodeEnchantment));
-    }
-
-    /// Registers a new [item group runnable][ItemGroupRunnable] to generate using data generation using the given [item group][GeodeItemGroup].
-    /// It returns the registered item group which acts as a builder to customize its behavior.
-    /// @param itemGroup The item group to register.
-    /// @return A builder pattern representing the registered item group to customize its behavior.
-    @SuppressWarnings("SameParameterValue")
-    protected final ItemGroupRunnable addItemGroup(GeodeItemGroup itemGroup) {
-        return addRunnable(new ItemGroupRunnable(itemGroup));
-    }
+    protected final EnchantmentRunnable addEnchantment(GeodeEnchantment value) {return addRunnable(new EnchantmentRunnable(value));}
+    protected final ItemGroupRunnable addItemGroup(GeodeItemGroup value) {return addRunnable(new ItemGroupRunnable(value));}
+    protected final ItemRunnable addItem(Item value) { return addRunnable(new ItemRunnable(value));}
+    protected final BlockRunnable addBlock(Block value) {return addRunnable(new BlockRunnable(value));}
+    protected final BlockEntityRunnable addBlockEntity(BlockEntity value) {return addRunnable(new BlockEntityRunnable(value));}
+    protected final SoundRunnable addSound(SoundEvent value) {return addRunnable(new SoundRunnable(value));}
+    protected final <U extends Entity> EntityTypeRunnable<U> addEntityType(EntityType<U> value) {return addRunnable(new EntityTypeRunnable<>(value));}
 
     /// Bootstrap method called to request every [runnable][DataGenRunnable] to generate. Call any runnable registering
     /// method in here.
@@ -345,7 +339,7 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
         // region Translate
 
-        /// The translation of the name of the enchantment. Cannot be null.
+        /// The translation of the name of the item group. Cannot be null.
         private IncompleteGetter<String> nameTranslation;
 
         @Override
@@ -357,6 +351,164 @@ public abstract class GeodeDataGeneration implements DataProvider {
         @Override
         public ItemGroupRunnable autoTranslate() {
             nameTranslation = registries -> StringHelper.toHumanReadableName(value.registryKey().getValue());
+            return this;
+        }
+
+        // endregion
+    }
+
+    public static final class ItemRunnable extends DataGenRunnable<Item> implements
+            Translatable<ItemRunnable>,
+            AutoTranslatable<ItemRunnable> {
+        // region Essentials
+
+        public ItemRunnable(Item item) {
+            super(item);
+        }
+
+        @Override
+        protected void run(@NotNull RegistryWrapper.WrapperLookup registries, DataGen dataGen) {
+            dataGen.translations.add(value.getTranslationKey(), nameTranslation.complete(registries));
+        }
+
+        // endregion
+
+        // region Translation
+
+        private IncompleteGetter<String> nameTranslation;
+
+        @Override
+        public ItemRunnable translate(String translation) {
+            nameTranslation = registries -> translation;
+            return this;
+        }
+
+        @Override
+        public ItemRunnable autoTranslate() {
+            nameTranslation = registries ->
+                    Optional.ofNullable(RegistryHelper.getIdentifierOf(registries, RegistryKeys.ITEM, value))
+                            .map(StringHelper::toHumanReadableName)
+                            .orElse(value.getTranslationKey());
+
+            return this;
+        }
+
+        // endregion
+    }
+
+    public static final class BlockRunnable extends DataGenRunnable<Block> implements
+            Translatable<BlockRunnable>,
+            AutoTranslatable<BlockRunnable> {
+        // region Essentials
+
+        public BlockRunnable(Block block) {
+            super(block);
+        }
+
+        @Override
+        protected void run(@NotNull RegistryWrapper.WrapperLookup registries, DataGen dataGen) {
+            dataGen.translations.add(value.getTranslationKey(), nameTranslation.complete(registries));
+        }
+
+        // endregion
+
+        // region Translation
+
+        private IncompleteGetter<String> nameTranslation;
+
+        @Override
+        public BlockRunnable translate(String translation) {
+            nameTranslation = registries -> translation;
+            return this;
+        }
+
+        @Override
+        public BlockRunnable autoTranslate() {
+            nameTranslation = registries ->
+                    Optional.ofNullable(RegistryHelper.getIdentifierOf(registries, RegistryKeys.BLOCK, value))
+                            .map(StringHelper::toHumanReadableName)
+                            .orElse(value.getTranslationKey());
+
+            return this;
+        }
+
+        // endregion
+    }
+
+    public static final class BlockEntityRunnable extends DataGenRunnable<BlockEntity> {
+        // region Essentials
+
+        public BlockEntityRunnable(BlockEntity blockEntity) {
+            super(blockEntity);
+        }
+
+        @Override
+        protected void run(@NotNull RegistryWrapper.WrapperLookup registries, DataGen dataGen) {
+        }
+
+        // endregion
+    }
+
+    public static final class SoundRunnable extends DataGenRunnable<SoundEvent> {
+        // region Essentials
+
+        public SoundRunnable(SoundEvent sound) {
+            super(sound);
+        }
+
+        @Override
+        protected void run(@NotNull RegistryWrapper.WrapperLookup registries, DataGen dataGen) {
+            String key = Util.createTranslationKey("subtitle", value.id());
+            dataGen.translations.add(key, Optional.ofNullable(subtitleTranslation.complete(registries)).orElse(key));
+        }
+
+        // endregion
+
+        // region Translation
+
+        private IncompleteGetter<String> subtitleTranslation = null;
+
+        public SoundRunnable subtitle(String translation) {
+            subtitleTranslation = registries -> translation;
+            return this;
+        }
+
+        // endregion
+    }
+
+    public static final class EntityTypeRunnable<U extends Entity> extends DataGenRunnable<EntityType<U>> implements
+            Translatable<EntityTypeRunnable<U>>,
+            AutoTranslatable<EntityTypeRunnable<U>> {
+        // region Essentials
+
+        public EntityTypeRunnable(EntityType<U> entityType) {
+            super(entityType);
+        }
+
+        @Override
+        protected void run(@NotNull RegistryWrapper.WrapperLookup registries, DataGen dataGen) {
+            dataGen.translations.add(value.getTranslationKey(), nameTranslation.complete(registries));
+        }
+
+        // endregion
+
+        // region Translation
+
+        private IncompleteGetter<String> nameTranslation;
+
+        @Override
+        public EntityTypeRunnable<U> translate(String translation) {
+            nameTranslation = registries -> translation;
+            return this;
+        }
+
+        @Override
+        public EntityTypeRunnable<U> autoTranslate() {
+            nameTranslation = registries ->
+                    Optional.ofNullable(RegistryHelper.getIdentifierOf(registries, RegistryKeys.ENTITY_TYPE, value))
+                            .map(StringHelper::toHumanReadableName)
+                            .orElse(value.getTranslationKey());
+
             return this;
         }
 

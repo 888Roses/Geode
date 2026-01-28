@@ -22,6 +22,9 @@ public class ExampleModDataProvider extends GeodeDataGeneration {
         addItemGroup(ModItemGroups.EXAMPLE_MOD_GROUP)
                 .autoTranslate();
 
+        addItem(ModItems.ITEM_IDENTIFIER)
+                .autoTranslate();
+
         addEnchantment(ModEnchantments.SHARPNESS_COPYCAT)
                 .autoTranslate()
                 .enchantment(ItemTags.SHARP_WEAPON_ENCHANTABLE)
