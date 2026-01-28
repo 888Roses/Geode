@@ -11,11 +11,15 @@
 > [!Important]
 > Geode is a library mod. It won't do anything on it's own, only add it if other mods require it.
 
-# What is Geode?
-Geode is a library enhancing many aspects of Minecraft modding. It includes a powerful builder pattern based registration system, an extensive math API and many many helpers.
+# 🤔 What is Geode?
+Geode is a library enhancing many aspects of Minecraft modding, including:
+- 🛠️ **Powerful Builder Based Registration**<br/>A new way of registering your items, blocks, entities and more using builders, all in one centralized Geode instance.
+- 📐 **Extensive Math API**<br/>A large collection of common Math functions, as well as _niche_ ones such as the inverse square root.
+- 📖 **Plenty Helpers**<br/>Many many helper classes to aid with every aspect of minecraft development, from raymarching to getting an identifier from registries.
 
 > [!CAUTION]
-> This library will not be ported to Forge/NeoForge/Quilt. It will also not be backported and only be maintained in the newest available version.
+> **Geode will not be ported to Forge/NeoForge/Quilt**. It will also **not be backported** and **only be maintained in the newest available version**.
+
 
 
 
