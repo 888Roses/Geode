@@ -367,11 +367,11 @@ public interface ServerRegisterer extends CommonRegisterer {
     /// @param identifier The identifier of the created group.
     /// @param builder A [builder][ItemGroup.Builder] describing the created item group.
     /// @param content A list of every [item][Item] contained in the group.
-    /// @return The created [group][GeodeGroup].
+    /// @return The created [group][GeodeItemGroup].
     /// @see #registerGroup(String, ItemGroupBuilder, Item...)
-    default GeodeGroup registerGroup(Identifier identifier, ItemGroupBuilder builder, Item... content) {
+    default GeodeItemGroup registerGroup(Identifier identifier, ItemGroupBuilder builder, Item... content) {
         RegistryKey<ItemGroup> registryKey = RegistryKey.of(Registries.ITEM_GROUP.getKey(), identifier);
-        GeodeGroup constructedGroup = new GeodeGroup(registryKey, builder.build(identifier).build(), () -> content);
+        GeodeItemGroup constructedGroup = new GeodeItemGroup(registryKey, builder.build(identifier).build(), () -> content);
         ServerCustomRegistries.GROUPS.add(constructedGroup);
         return constructedGroup;
     }
@@ -381,11 +381,11 @@ public interface ServerRegisterer extends CommonRegisterer {
     /// @param identifier The identifier of the created group.
     /// @param builder A [builder][ItemGroup.Builder] describing the created item group.
     /// @param content A list of every [item][Item] contained in the group.
-    /// @return The created [group][GeodeGroup].
+    /// @return The created [group][GeodeItemGroup].
     /// @apiNote The `String` identifier is turned into an [Identifier] with the namespace being the [#getLinkedModId()],
     ///          using [#id(String)].
     /// @see #registerGroup(Identifier, ItemGroupBuilder, Item...)
-    default GeodeGroup registerGroup(String identifier, ItemGroupBuilder builder, Item... content) {
+    default GeodeItemGroup registerGroup(String identifier, ItemGroupBuilder builder, Item... content) {
         return registerGroup(id(identifier), builder, content);
     }
 

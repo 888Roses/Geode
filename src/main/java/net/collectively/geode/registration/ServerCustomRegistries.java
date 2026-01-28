@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 interface ServerCustomRegistries {
-    List<GeodeGroup> GROUPS = new ArrayList<>();
+    List<GeodeItemGroup> GROUPS = new ArrayList<>();
 
     static void postInitialization() {
-        for (GeodeGroup group : GROUPS) {
+        for (GeodeItemGroup group : GROUPS) {
             group.register();
         }
     }

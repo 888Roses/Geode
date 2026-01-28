@@ -66,7 +66,7 @@ public final class ItemGroupBuilder {
                 .entries(EMPTY)
                 .texture(texture);
 
-        if (displayName == null) builder.displayName(Text.translatable(GeodeGroup.getTranslationKey(identifier)));
+        if (displayName == null) builder.displayName(Text.translatable(GeodeItemGroup.getTranslationKey(identifier)));
 
         if (isSpecial) builder.special();
         if (!shouldRenderName) builder.noRenderedName();

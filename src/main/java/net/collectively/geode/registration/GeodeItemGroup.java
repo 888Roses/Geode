@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 /// @param content A supplier providing every item to be added to the group when registering it.
 ///
 /// @see ServerRegisterer#registerGroup(Identifier, ItemGroupBuilder, Item...)
-public record GeodeGroup(RegistryKey<ItemGroup> registryKey, ItemGroup itemGroup, Supplier<Item[]> content) {
+public record GeodeItemGroup(RegistryKey<ItemGroup> registryKey, ItemGroup itemGroup, Supplier<Item[]> content) {
     /// Registers this group in the [Registries#ITEM_GROUP] registry.
     /// **Warning**: this is an **internal** method and should not be called if you don't know what you're doing!
     public void register() {
