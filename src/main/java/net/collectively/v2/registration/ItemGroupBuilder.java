@@ -1,12 +1,10 @@
 package net.collectively.v2.registration;
 
-import net.collectively.v2.datagen.GeodeLanguageGenerator;
 import net.fabricmc.fabric.impl.itemgroup.FabricItemGroupBuilderImpl;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
 
 import java.util.function.Supplier;
 
