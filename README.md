@@ -45,5 +45,6 @@ dependencies {
 <br/>
 <hr/>
 
-<sub>Geode Copyright © 2020-2023 The Collective.</sub>
+<sub>@ 2026 The Collective. All Rights Reserved.</sub><br/>
 <sub>Geode is licensed under Apache-2.0.</sub>
+
