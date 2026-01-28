@@ -233,6 +233,18 @@ public abstract class GeodeDataGeneration implements DataProvider {
                 if (enchantment.definition.isTreasure) dataGen.enchantmentTags.add(EnchantmentTags.TREASURE, target);
                 else dataGen.enchantmentTags.add(EnchantmentTags.NON_TREASURE, target);
             }
+
+            // Generate general tags.
+            if (!tags.isEmpty()) {
+                for (TagKey<Enchantment> tag : tags) {
+                    // Extra safety since treasure or non treasure is determined by the enchantment definition.
+                    if (tag == EnchantmentTags.NON_TREASURE || tag == EnchantmentTags.TREASURE) {
+                        continue;
+                    }
+
+                    dataGen.enchantmentTags.add(tag, target);
+                }
+            }
         }
 
         // endregion
@@ -267,6 +279,17 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
         public CompletableEnchantment enchantment(TagKey<Item> supportedItems) {
             return new CompletableEnchantment(this, RegistrationUtils.itemTag(supportedItems));
+        }
+
+        // endregion
+
+        // region Tags
+
+        private final List<TagKey<Enchantment>> tags = new ArrayList<>();
+
+        public EnchantmentData tag(TagKey<Enchantment> tag) {
+            tags.add(tag);
+            return this;
         }
 
         // endregion
