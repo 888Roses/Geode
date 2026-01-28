@@ -60,6 +60,7 @@ public final class ItemGroupBuilder {
     }
 
     public FabricItemGroupBuilderImpl build(Identifier identifier) {
+        // Do not allow null or empty group names.
         if (displayName == null || displayName.equals(Text.empty())) {
             displayName = Text.translatable(GeodeItemGroup.getTranslationKey(identifier));
         }
@@ -70,9 +71,17 @@ public final class ItemGroupBuilder {
                 .entries(EMPTY)
                 .texture(texture);
 
-        if (isSpecial) builder.special();
-        if (!shouldRenderName) builder.noRenderedName();
-        if (!shouldShowScrollbar) builder.noScrollbar();
+        if (isSpecial) {
+            builder.special();
+        }
+
+        if (!shouldRenderName) {
+            builder.noRenderedName();
+        }
+
+        if (!shouldShowScrollbar) {
+            builder.noScrollbar();
+        }
 
         return builder;
     }
