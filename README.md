@@ -26,7 +26,7 @@ You may import Geode in your repositories using the Modrinth API:
 In your `gradle.properties` file:
 ```properties
 # Geode Version.
-geode = 1.0.0 # Add the version here
+geode_version = kfiRRHFC # Add the version here
 ```
 
 In your `build.gradle` file:
@@ -59,5 +59,6 @@ dependencies {
 
 <sub>@ 2026 The Collective. All Rights Reserved.</sub><br/>
 <sub>Geode is licensed under Apache-2.0.</sub>
+
 
 
