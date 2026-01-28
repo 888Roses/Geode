@@ -43,39 +43,53 @@ import java.util.concurrent.CompletableFuture;
 public abstract class GeodeDataGeneration implements DataProvider {
     // region Resources
 
-    private final List<DataGenTarget<?>> dataGenTargets = new ArrayList<>();
+    /// A list of every [runnable][DataGenRunnable] registered in this centralized data generation instance. Those runnable
+    /// will eventually generate their DataGen using [DataGenRunnable#run(RegistryWrapper.WrapperLookup,DataGen)].
+    private final List<DataGenRunnable<?>> registeredRunnable = new ArrayList<>();
 
-    protected final <T extends DataGenTarget<?>> T addDataGenTarget(T target) {
-        dataGenTargets.add(target);
+    /// Registers a new [runnable][DataGenRunnable] in this data generation instance.
+    protected final <T extends DataGenRunnable<?>> T addRunnable(T runnable) {
+        registeredRunnable.add(runnable);
         //noinspection unchecked
-        return (T) dataGenTargets.getLast();
+        return (T) registeredRunnable.getLast();
     }
 
+    /// Registers a new [enchantment runnable][EnchantmentData] to generate using data generation using the given
+    /// [enchantment][GeodeEnchantment]. It returns the registered enchantment which acts as a builder to customize the
+    /// behavior of that enchantment.
+    /// @param geodeEnchantment The enchantment to register.
+    /// @return A builder pattern representing the registered enchantment to customize its behavior.
     @SuppressWarnings("SameParameterValue")
     protected final EnchantmentData addEnchantment(GeodeEnchantment geodeEnchantment) {
-        return addDataGenTarget(new EnchantmentData(geodeEnchantment));
+        return addRunnable(new EnchantmentData(geodeEnchantment));
     }
 
+    /// Bootstrap method called to request every [runnable][DataGenRunnable] to generate. Call any runnable registering
+    /// method in here.
     protected abstract void generate();
 
     // endregion
 
     // region Internal
 
+    /// The engine actually generating the DataGen.
     private final DataGen dataGen;
+    /// Future registries.
     private final CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture;
 
+    /// Creates a new instance of this centralized data generation engine.
     public GeodeDataGeneration(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
         dataGen = new DataGen(dataOutput, registriesFuture);
         this.registriesFuture = registriesFuture;
     }
 
+    /// Generates the DataGen.
     @Override
     public CompletableFuture<?> run(DataWriter writer) {
         return this.registriesFuture.thenCompose((registries) -> {
             generate();
 
-            for (var target : dataGenTargets) {
+            for (var target : registeredRunnable) {
                 target.run(registries, dataGen);
             }
 
@@ -96,13 +110,15 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
     // region DataGen
 
+    /// Engine class responsible for generating the actual DataGen.
+    /// It contains different providers generating DataGen for different aspects of the game.
     public static class DataGen {
         public final LanguageGenerator translations;
         public final EnchantmentGenerator enchantments;
         public final EnchantmentTagGenerator enchantmentTags;
 
         private final Map<String, String> registeredTranslations = new HashMap<>();
-        private final Map<Identifier, CompletableEnchantment> registeredEnchantments = new HashMap<>();
+        private final Map<Identifier, IncompleteEnchantment> registeredEnchantments = new HashMap<>();
         private final Map<TagKey<Enchantment>, List<Identifier>> registeredEnchantmentTags = new HashMap<>();
 
         public DataGen(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
@@ -127,8 +143,8 @@ public abstract class GeodeDataGeneration implements DataProvider {
         }
 
         public final class EnchantmentGenerator extends GeodeEnchantmentGenerator {
-            public void add(GeodeEnchantment geodeEnchantment, CompletableEnchantment completableEnchantment) {
-                registeredEnchantments.put(geodeEnchantment.identifier(), completableEnchantment);
+            public void add(GeodeEnchantment geodeEnchantment, IncompleteEnchantment incompleteEnchantment) {
+                registeredEnchantments.put(geodeEnchantment.identifier(), incompleteEnchantment);
             }
 
             public EnchantmentGenerator(DataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
@@ -164,39 +180,27 @@ public abstract class GeodeDataGeneration implements DataProvider {
         }
     }
 
+    /// Implements methods used to generate Text translations.
     @SuppressWarnings("unused")
-    public abstract static class DataGenTarget<T> {
-        protected final T target;
-
-        public DataGenTarget(T target) {
-            this.target = target;
-        }
-
-        public T getTarget() {
-            return target;
-        }
-
-        protected abstract void run(RegistryWrapper.@NotNull WrapperLookup registries, DataGen dataGen);
-    }
-
-    @SuppressWarnings("unused")
-    public interface Translatable<T extends DataGenTarget<?>> {
+    public interface Translatable<T extends DataGenRunnable<?>> {
+        /// Generates the translation of this [runnable][DataGenRunnable] in the lang file.
         T translate(String translation);
     }
 
+    /// Specifies that a method can be used to automatically generate translations based on the identifier of the
+    /// [runnable][DataGenRunnable].
     @SuppressWarnings({"unused", "UnusedReturnValue"})
-    public interface AutoTranslatable<T extends DataGenTarget<?>> {
+    public interface AutoTranslatable<T extends DataGenRunnable<?>> {
+        /// Translates this [runnable][DataGenRunnable] in a similar way to a [normal translatable][Translatable] except the
+        /// actual translation is created using the identifier of this runnable.
+        /// @see StringHelper#toHumanReadableName(Identifier)
         T autoTranslate();
 
-        /// Creates a `String` human-readable name for the [given value][T] in the given registry referenced by the
-        /// [RegistryKey].
-        ///
-        /// @param value
-        ///         The registered value we want to get the name of.
-        /// @param registryKey
-        ///         Registry key referencing the [Registry] of type [T] in which the value is registered.
+        /// Creates a `String` human-readable name for the [given value][T] in the given registry referenced by the [RegistryKey].
+        /// @param value The registered value we want to get the name of.
+        /// @param registryKey Registry key referencing the [Registry] of type [T] in which the value is registered.
         /// @return An [optional][Optional] of `String` containing the human-readable name, or nothing if the value was not
-        ///                                                                 registered.
+        /// registered.
         /// @see RegistryHelper#getIdentifierOf(RegistryWrapper.WrapperLookup, RegistryKey, Object)
         default <U> Optional<String> getHumanReadableName(RegistryWrapper.@NotNull WrapperLookup registries,
                                                           @NotNull U value,
@@ -206,8 +210,9 @@ public abstract class GeodeDataGeneration implements DataProvider {
         }
     }
 
+    /// Represents a [runnable][DataGenRunnable] generating the DataGen of an [enchantment][GeodeEnchantment].
     @SuppressWarnings("unused")
-    public static final class EnchantmentData extends DataGenTarget<GeodeEnchantment> implements
+    public static final class EnchantmentData extends DataGenRunnable<GeodeEnchantment> implements
             Translatable<EnchantmentData>,
             AutoTranslatable<EnchantmentData> {
 
@@ -220,7 +225,7 @@ public abstract class GeodeDataGeneration implements DataProvider {
         @Override
         protected void run(RegistryWrapper.@NotNull WrapperLookup registries, DataGen dataGen) {
             // Generate the translations for the name and description of the enchantment if it isn't null.
-            String nameKey = Util.createTranslationKey("enchantment", target.identifier());
+            String nameKey = Util.createTranslationKey("enchantment", value.identifier());
             dataGen.translations.add(nameKey, nameTranslation.complete(registries));
             if (descriptionTranslation != null && !descriptionTranslation.isBlank()) {
                 dataGen.translations.add(nameKey + ".desc", descriptionTranslation);
@@ -228,10 +233,10 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
             // Generate the enchantment itself.
             if (enchantment != null) {
-                dataGen.enchantments.add(target, enchantment);
+                dataGen.enchantments.add(value, enchantment);
                 // Add to the correct tags for them to appear in the enchanting table.
-                if (enchantment.definition.isTreasure) dataGen.enchantmentTags.add(EnchantmentTags.TREASURE, target);
-                else dataGen.enchantmentTags.add(EnchantmentTags.NON_TREASURE, target);
+                if (enchantment.definition.isTreasure) dataGen.enchantmentTags.add(EnchantmentTags.TREASURE, value);
+                else dataGen.enchantmentTags.add(EnchantmentTags.NON_TREASURE, value);
             }
 
             // Generate general tags.
@@ -242,7 +247,7 @@ public abstract class GeodeDataGeneration implements DataProvider {
                         continue;
                     }
 
-                    dataGen.enchantmentTags.add(tag, target);
+                    dataGen.enchantmentTags.add(tag, value);
                 }
             }
         }
@@ -251,7 +256,9 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
         // region Translate
 
-        private CompletableRegistryGetter<String> nameTranslation;
+        /// The translation of the name of the enchantment. Cannot be null.
+        private IncompleteGetter<String> nameTranslation;
+        /// The optional translation of the description of the enchantment. Can be null or empty.
         private String descriptionTranslation;
 
         @Override
@@ -262,10 +269,14 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
         @Override
         public EnchantmentData autoTranslate() {
-            nameTranslation = registries -> StringHelper.toHumanReadableName(target.registryKey().getValue());
+            nameTranslation = registries -> StringHelper.toHumanReadableName(value.registryKey().getValue());
             return this;
         }
 
+        /// Creates a translation for the description of this enchantment. The description of an enchantment isn't natively
+        /// supported; users will require a mod like
+        /// [Enchantment Descriptions by Darkhax](https://modrinth.com/mod/enchantment-descriptions) to be able to see them.
+        /// While this is optional, it is good practice to include it.
         public EnchantmentData translateDescription(String translation) {
             descriptionTranslation = translation;
             return this;
@@ -275,18 +286,26 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
         // region Enchantment
 
-        private CompletableEnchantment enchantment;
+        /// The enchantment definition of this runnable.
+        private IncompleteEnchantment enchantment;
 
-        public CompletableEnchantment enchantment(TagKey<Item> supportedItems) {
-            return new CompletableEnchantment(this, RegistrationUtils.itemTag(supportedItems));
+        /// Creates the definition of this enchantment. This is what generates the actual enchantment file located under
+        /// `data > enchantments`.
+        /// @param supportedItems A tag of items on which the enchantment can be applied.
+        /// @return A builder pattern defining the enchantment structure. Call [IncompleteEnchantment#build()] to get back
+        /// to this structure.
+        public IncompleteEnchantment enchantment(TagKey<Item> supportedItems) {
+            return new IncompleteEnchantment(this, RegistrationUtils.itemTag(supportedItems));
         }
 
         // endregion
 
         // region Tags
 
+        /// List of tags for this enchantment.
         private final List<TagKey<Enchantment>> tags = new ArrayList<>();
 
+        /// Adds this enchantment to the given tag.
         public EnchantmentData tag(TagKey<Enchantment> tag) {
             tags.add(tag);
             return this;
@@ -299,29 +318,61 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
     // region Util
 
+    /// Collection of utilities regarding registration of [runnable][DataGenRunnable].
     @SuppressWarnings("unused")
     public interface RegistrationUtils {
-        static <T> RegistryWrapper.Impl<T> getRegistry(RegistryWrapper.@NotNull WrapperLookup registries, RegistryKey<? extends Registry<T>> registryKey) {
-            return registries.getOrThrow(registryKey);
+        /// Retrieves the [registry][Registry] at the given [registry key][RegistryKey] using the
+        /// [given registries][net.minecraft.registry.RegistryWrapper.WrapperLookup].
+        /// @param registriesFuture The wrapper lookup to retrieve the registry from.
+        /// @param registryKey The [key][RegistryKey] of this registry.
+        /// @return The retrieved registry.
+        /// @see IncompleteGetter
+        static <T> RegistryWrapper.Impl<T> getRegistry(RegistryWrapper.@NotNull WrapperLookup registriesFuture, RegistryKey<? extends Registry<T>> registryKey) {
+            return registriesFuture.getOrThrow(registryKey);
         }
 
-        static CompletableRegistryGetter<RegistryEntryList<Item>> itemTag(TagKey<Item> tag) {
+        /// Retrieves a [registry entry list][RegistryEntryList] containing every [item][Item] in the given [tag][TagKey].
+        /// @param tag The tag we want to get the contents of.
+        /// @return An [incomplete getter][IncompleteGetter] containing the list of item. This incomplete getter will be
+        /// [complete][IncompleteGetter#complete(net.minecraft.registry.RegistryWrapper.WrapperLookup)] when generating
+        /// DataGen.
+        static IncompleteGetter<RegistryEntryList<Item>> itemTag(TagKey<Item> tag) {
             return registries -> getRegistry(registries, RegistryKeys.ITEM).getOrThrow(tag);
         }
 
-        static CompletableRegistryGetter<RegistryEntryList<DamageType>> damageTag(TagKey<DamageType> tag) {
+        /// Retrieves a [registry entry list][RegistryEntryList] containing every [damage type][DamageType] in the given [tag][TagKey].
+        /// @param tag The tag we want to get the contents of.
+        /// @return An [incomplete getter][IncompleteGetter] containing the list of damage. This incomplete getter will be
+        /// [complete][IncompleteGetter#complete(net.minecraft.registry.RegistryWrapper.WrapperLookup)] when generating
+        /// DataGen.
+        static IncompleteGetter<RegistryEntryList<DamageType>> damageTag(TagKey<DamageType> tag) {
             return registries -> getRegistry(registries, RegistryKeys.DAMAGE_TYPE).getOrThrow(tag);
         }
 
-        static CompletableRegistryGetter<RegistryEntryList<Enchantment>> enchantmentTag(TagKey<Enchantment> tag) {
+        /// Retrieves a [registry entry list][RegistryEntryList] containing every [enchantment][Enchantment] in the given [tag][TagKey].
+        /// @param tag The tag we want to get the contents of.
+        /// @return An [incomplete getter][IncompleteGetter] containing the list of enchantment. This incomplete getter will
+        /// be [complete][IncompleteGetter#complete(net.minecraft.registry.RegistryWrapper.WrapperLookup)] when generating
+        /// DataGen.
+        static IncompleteGetter<RegistryEntryList<Enchantment>> enchantmentTag(TagKey<Enchantment> tag) {
             return registries -> getRegistry(registries, RegistryKeys.ENCHANTMENT).getOrThrow(tag);
         }
 
-        static CompletableRegistryGetter<RegistryEntryList<Block>> blockTag(TagKey<Block> tag) {
+        /// Retrieves a [registry entry list][RegistryEntryList] containing every [block][Block] in the given [tag][TagKey].
+        /// @param tag The tag we want to get the contents of.
+        /// @return An [incomplete getter][IncompleteGetter] containing the list of block. This incomplete getter will be
+        /// [complete][IncompleteGetter#complete(net.minecraft.registry.RegistryWrapper.WrapperLookup)] when generating
+        /// DataGen.
+        static IncompleteGetter<RegistryEntryList<Block>> blockTag(TagKey<Block> tag) {
             return registries -> getRegistry(registries, RegistryKeys.BLOCK).getOrThrow(tag);
         }
 
-        static CompletableRegistryGetter<RegistryEntryList<EntityType<?>>> entityTypeTag(TagKey<EntityType<?>> tag) {
+        /// Retrieves a [registry entry list][RegistryEntryList] containing every [entity type][EntityType] in the given [tag][TagKey].
+        /// @param tag The tag we want to get the contents of.
+        /// @return An [incomplete getter][IncompleteGetter] containing the list of entity type. This incomplete getter will
+        /// be [complete][IncompleteGetter#complete(net.minecraft.registry.RegistryWrapper.WrapperLookup)] when generating
+        /// DataGen.
+        static IncompleteGetter<RegistryEntryList<EntityType<?>>> entityTypeTag(TagKey<EntityType<?>> tag) {
             return registries -> getRegistry(registries, RegistryKeys.ENTITY_TYPE).getOrThrow(tag);
         }
     }
@@ -330,60 +381,64 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
     // region Structures
 
+    /// Builder pattern defining an [enchantment][Enchantment] for which we want to generate DataGen. Remember to always call
+    /// [IncompleteEnchantment#build()] to register it and go back to the parent [runnable][DataGenRunnable].
     @SuppressWarnings("unused")
-    public static final class CompletableEnchantment {
+    public static final class IncompleteEnchantment {
         private final EnchantmentData parent;
-        private final CompletableDefinition definition;
-        private CompletableRegistryGetter<RegistryEntryList<Enchantment>> exclusiveSet = lookup -> RegistryEntryList.of();
+        private final IncompleteDefinition definition;
+        private IncompleteGetter<RegistryEntryList<Enchantment>> exclusiveSet = lookup -> RegistryEntryList.of();
         private final Map<ComponentType<?>, List<?>> effectLists = new HashMap<>();
         private final ComponentMap.Builder effectMap = ComponentMap.builder();
 
-        private CompletableEnchantment(EnchantmentData parent, CompletableRegistryGetter<RegistryEntryList<Item>> supportedItems) {
+        private IncompleteEnchantment(EnchantmentData parent, IncompleteGetter<RegistryEntryList<Item>> supportedItems) {
             this.parent = parent;
-            this.definition = new CompletableDefinition(supportedItems);
+            this.definition = new IncompleteDefinition(supportedItems);
         }
 
+        /// Registers this enchantment to be generated in DataGen.
         public EnchantmentData build() {
             parent.enchantment = this;
             return this.parent;
         }
 
-        public CompletableEnchantment exclusiveSet(TagKey<Enchantment> exclusiveSet) {
+        /// A [tag][TagKey] of [enchantments][Enchantment] representing every enchantment incompatible with this one.
+        public IncompleteEnchantment exclusiveSet(TagKey<Enchantment> exclusiveSet) {
             this.exclusiveSet = RegistrationUtils.enchantmentTag(exclusiveSet);
             return this;
         }
 
-        public <E> @NotNull CompletableEnchantment addEffect(ComponentType<List<EnchantmentEffectEntry<E>>> effectType, E effect, LootCondition.Builder requirements) {
+        public <E> @NotNull IncompleteEnchantment addEffect(ComponentType<List<EnchantmentEffectEntry<E>>> effectType, E effect, LootCondition.Builder requirements) {
             getEffectsList(effectType).add(new EnchantmentEffectEntry<>(effect, Optional.of(requirements.build())));
             return this;
         }
 
-        public <E> @NotNull CompletableEnchantment addEffect(ComponentType<List<EnchantmentEffectEntry<E>>> effectType, E effect) {
+        public <E> @NotNull IncompleteEnchantment addEffect(ComponentType<List<EnchantmentEffectEntry<E>>> effectType, E effect) {
             this.getEffectsList(effectType).add(new EnchantmentEffectEntry<>(effect, Optional.empty()));
             return this;
         }
 
-        public <E> @NotNull CompletableEnchantment addEffect(ComponentType<List<TargetedEnchantmentEffect<E>>> type, EnchantmentEffectTarget enchanted, EnchantmentEffectTarget affected, E effect, LootCondition.Builder requirements) {
+        public <E> @NotNull IncompleteEnchantment addEffect(ComponentType<List<TargetedEnchantmentEffect<E>>> type, EnchantmentEffectTarget enchanted, EnchantmentEffectTarget affected, E effect, LootCondition.Builder requirements) {
             this.getEffectsList(type).add(new TargetedEnchantmentEffect<>(enchanted, affected, effect, Optional.of(requirements.build())));
             return this;
         }
 
-        public <E> @NotNull CompletableEnchantment addEffect(ComponentType<List<TargetedEnchantmentEffect<E>>> type, EnchantmentEffectTarget enchanted, EnchantmentEffectTarget affected, E effect) {
+        public <E> @NotNull IncompleteEnchantment addEffect(ComponentType<List<TargetedEnchantmentEffect<E>>> type, EnchantmentEffectTarget enchanted, EnchantmentEffectTarget affected, E effect) {
             this.getEffectsList(type).add(new TargetedEnchantmentEffect<>(enchanted, affected, effect, Optional.empty()));
             return this;
         }
 
-        public @NotNull CompletableEnchantment addEffect(ComponentType<List<AttributeEnchantmentEffect>> type, AttributeEnchantmentEffect effect) {
+        public @NotNull GeodeDataGeneration.IncompleteEnchantment addEffect(ComponentType<List<AttributeEnchantmentEffect>> type, AttributeEnchantmentEffect effect) {
             this.getEffectsList(type).add(effect);
             return this;
         }
 
-        public <E> @NotNull CompletableEnchantment addNonListEffect(ComponentType<E> type, E effect) {
+        public <E> @NotNull IncompleteEnchantment addNonListEffect(ComponentType<E> type, E effect) {
             this.effectMap.add(type, effect);
             return this;
         }
 
-        public @NotNull CompletableEnchantment addEffect(ComponentType<Unit> type) {
+        public @NotNull GeodeDataGeneration.IncompleteEnchantment addEffect(ComponentType<Unit> type) {
             this.effectMap.add(type, Unit.INSTANCE);
             return this;
         }
@@ -397,42 +452,42 @@ public abstract class GeodeDataGeneration implements DataProvider {
             });
         }
 
-        public CompletableEnchantment primaryItems(TagKey<Item> items) {
+        public IncompleteEnchantment primaryItems(TagKey<Item> items) {
             definition.primaryItems = Optional.ofNullable(items == null ? null : RegistrationUtils.itemTag(items));
             return this;
         }
 
-        public CompletableEnchantment weight(int weight) {
+        public IncompleteEnchantment weight(int weight) {
             definition.weight = weight;
             return this;
         }
 
-        public CompletableEnchantment maxLevel(int maxLevel) {
+        public IncompleteEnchantment maxLevel(int maxLevel) {
             definition.maxLevel = maxLevel;
             return this;
         }
 
-        public CompletableEnchantment minCost(int base, int perLevelAboveFirst) {
+        public IncompleteEnchantment minCost(int base, int perLevelAboveFirst) {
             definition.minCost = new Enchantment.Cost(base, perLevelAboveFirst);
             return this;
         }
 
-        public CompletableEnchantment maxCost(int base, int perLevelAboveFirst) {
+        public IncompleteEnchantment maxCost(int base, int perLevelAboveFirst) {
             definition.maxCost = new Enchantment.Cost(base, perLevelAboveFirst);
             return this;
         }
 
-        public CompletableEnchantment anvilCost(int anvilCost) {
+        public IncompleteEnchantment anvilCost(int anvilCost) {
             definition.anvilCost = anvilCost;
             return this;
         }
 
-        public CompletableEnchantment isTreasure(boolean isTreasure) {
+        public IncompleteEnchantment isTreasure(boolean isTreasure) {
             definition.isTreasure = isTreasure;
             return this;
         }
 
-        public CompletableEnchantment addSlot(AttributeModifierSlot slot) {
+        public IncompleteEnchantment addSlot(AttributeModifierSlot slot) {
             if (!definition.slots.contains(slot)) definition.slots.add(slot);
             return this;
         }
@@ -447,10 +502,10 @@ public abstract class GeodeDataGeneration implements DataProvider {
         }
 
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-        public static class CompletableDefinition {
+        public static class IncompleteDefinition {
             public final List<AttributeModifierSlot> slots = new ArrayList<>();
-            public final CompletableRegistryGetter<RegistryEntryList<Item>> supportedItems;
-            public Optional<CompletableRegistryGetter<RegistryEntryList<Item>>> primaryItems = Optional.empty();
+            public final IncompleteGetter<RegistryEntryList<Item>> supportedItems;
+            public Optional<IncompleteGetter<RegistryEntryList<Item>>> primaryItems = Optional.empty();
             public int weight = 1;
             public int maxLevel = 1;
             public Enchantment.Cost minCost = new Enchantment.Cost(1, 1);
@@ -458,7 +513,7 @@ public abstract class GeodeDataGeneration implements DataProvider {
             public int anvilCost = 1;
             public boolean isTreasure;
 
-            private CompletableDefinition(CompletableRegistryGetter<RegistryEntryList<Item>> supportedItems) {
+            private IncompleteDefinition(IncompleteGetter<RegistryEntryList<Item>> supportedItems) {
                 this.supportedItems = supportedItems;
             }
 
