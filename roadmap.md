@@ -1,11 +1,28 @@
 # 🛣️ Roadmap
 
-▢ 🛠️ Registration of `StatusEffect`.
+## 🛠️ Registration
 
-▢ 🛠️ Registration of `LootTable`.
+▢ Registration of `StatusEffect`.
 
-▢ 📖 Data generation for `StatusEffect`.
+▢ Registration of `LootTable`.
 
-▢ 📖 Data generation for `LootTable`.
+▢ Custom container component modifiers.
 
-▢ 📐 Evaluating a mathematical operation contained in a `String`.
+## 📖 Data Generation
+
+▢ Data generation for `StatusEffect`.
+
+▢ Data generation for `LootTable`.
+
+## 📐 Math
+
+▢ Evaluating a mathematical operation contained in a `String`.
+
+## 💡 Events
+
+▢ Allow eating.
+
+▢ Allow fall damage.
+
+▢ Allow riding.
+
