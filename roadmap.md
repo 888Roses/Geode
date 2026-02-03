@@ -14,6 +14,8 @@
 
 ▢ Rename `Geode#register` to `Geode#finalize`.
 
+▢ Client side registration of various renderer and hud elements.
+
 ## 📖 Data Generation
 
 ▢ Data generation for `StatusEffect`.
