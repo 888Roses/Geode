@@ -177,7 +177,7 @@ public interface Draw {
     /// @param color The color of the arrow. Note that it should also specify the transparency of the gizmo using the first hexadecimal pair (i.e. `0xffFFFFFF`).
     /// @return The drawn arrow.
     static VisibilityConfigurable arrow(double3 a, double3 b, int color) {
-        return line(a, b, color, 3);
+        return arrow(a, b, color, 3);
     }
 
     /// Draws a white arrow from a [position a][double3] to a [position b][double3] with a given `width`.
