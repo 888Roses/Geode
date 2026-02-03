@@ -6,6 +6,8 @@
 
 ▢ Registration of `LootTable`.
 
+▢ Registration of `Advancement`.
+
 ▢ Custom container component modifiers.
 
 ▢ Registering `BlockItem` in an easier, more straight-forward way.
@@ -17,6 +19,8 @@
 ▢ Data generation for `StatusEffect`.
 
 ▢ Data generation for `LootTable`.
+
+▢ Data generation for `Advancement`.
 
 ▢ Data generation for complex block states.
 
