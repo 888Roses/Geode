@@ -10,10 +10,6 @@ base {
     archivesName = project.archives_base_name
 }
 
-loom {
-    accessWidenerPath = file("src/main/resources/geode.accesswidener")
-}
-
 fabricApi {
     configureDataGeneration {
         client = true
@@ -48,6 +44,46 @@ processResources {
         expand "version": project.version,
                 "minecraft_version": project.minecraft_version,
                 "loader_version": project.loader_version
+    }
+}
+
+sourceSets {
+    testmod {
+        compileClasspath += main.compileClasspath
+        compileClasspath += main.output
+        runtimeClasspath += main.runtimeClasspath
+        runtimeClasspath += main.output
+        resources {
+            srcDir("src/testmod/generated/resources")
+            exclude("src/testmod/generated/resources/.cache")
+        }
+    }
+}
+
+loom {
+    accessWidenerPath = file("src/main/resources/geode.accesswidener")
+
+    runs {
+        testmodClient {
+            client()
+            name "Testmod Client"
+            source sourceSets.testmod
+            runDir "run/test"
+        }
+        testmodServer {
+            server()
+            name "Testmod Server"
+            source sourceSets.testmod
+            runDir "run/test_server"
+        }
+        testmodDatagen {
+            client()
+            name "Testmod Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file("src/testmod/generated/resources")}"
+            vmArg "-Dfabric-api.datagen.modid=testmod"
+            source sourceSets.testmod
+        }
     }
 }
 

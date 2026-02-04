@@ -14,7 +14,7 @@ public interface CommonRegisterer {
     /// Ends the registration stage of this [ServerRegisterer]. Should be called in the initialization step of your mod.
     /// For example:
     /// ```java
-    /// public class ExampleMod implements ModInitializer {
+    /// public class GeodeTest implements ModInitializer {
     ///     public static final String MOD_ID = "example_mod";
     ///     public static final Geode geode = Geode.create(MOD_ID);
     ///

@@ -1,7 +1,7 @@
 {
   "values": [
     {
-      "id": "testing_mod:sharpness_copycat",
+      "id": "example_mod:sharpness_copycat",
       "required": false
     }
   ]

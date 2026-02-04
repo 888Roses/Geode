@@ -4,11 +4,16 @@ import net.collectively.geode.helpers.RegistryHelper;
 import net.collectively.geode.helpers.StringHelper;
 import net.collectively.geode.registration.GeodeEnchantment;
 import net.collectively.geode.registration.GeodeItemGroup;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.data.*;
+import net.minecraft.client.render.model.json.*;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -34,16 +39,21 @@ import net.minecraft.registry.tag.EnchantmentTags;
 import net.minecraft.registry.tag.TagBuilder;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.state.property.Property;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Unit;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
-@SuppressWarnings({"SameParameterValue", "unused"})
+@SuppressWarnings({"SameParameterValue", "unused", "UnusedReturnValue"})
 public abstract class GeodeDataGeneration implements DataProvider {
     // region Resources
 
@@ -58,13 +68,33 @@ public abstract class GeodeDataGeneration implements DataProvider {
         return (T) registeredRunnable.getLast();
     }
 
-    protected final EnchantmentRunnable addEnchantment(GeodeEnchantment value) {return addRunnable(new EnchantmentRunnable(value));}
-    protected final ItemGroupRunnable addItemGroup(GeodeItemGroup value) {return addRunnable(new ItemGroupRunnable(value));}
-    protected final ItemRunnable addItem(Item value) { return addRunnable(new ItemRunnable(value));}
-    protected final BlockRunnable addBlock(Block value) {return addRunnable(new BlockRunnable(value));}
-    protected final BlockEntityRunnable addBlockEntity(BlockEntity value) {return addRunnable(new BlockEntityRunnable(value));}
-    protected final SoundRunnable addSound(SoundEvent value) {return addRunnable(new SoundRunnable(value));}
-    protected final <U extends Entity> EntityTypeRunnable<U> addEntityType(EntityType<U> value) {return addRunnable(new EntityTypeRunnable<>(value));}
+    protected final EnchantmentRunnable addEnchantment(GeodeEnchantment value) {
+        return addRunnable(new EnchantmentRunnable(value));
+    }
+
+    protected final ItemGroupRunnable addItemGroup(GeodeItemGroup value) {
+        return addRunnable(new ItemGroupRunnable(value));
+    }
+
+    protected final ItemRunnable addItem(Item value) {
+        return addRunnable(new ItemRunnable(value));
+    }
+
+    protected final BlockRunnable addBlock(Block value) {
+        return addRunnable(new BlockRunnable(value));
+    }
+
+    protected final BlockEntityRunnable addBlockEntity(BlockEntity value) {
+        return addRunnable(new BlockEntityRunnable(value));
+    }
+
+    protected final SoundRunnable addSound(SoundEvent value) {
+        return addRunnable(new SoundRunnable(value));
+    }
+
+    protected final <U extends Entity> EntityTypeRunnable<U> addEntityType(EntityType<U> value) {
+        return addRunnable(new EntityTypeRunnable<>(value));
+    }
 
     /// Bootstrap method called to request every [runnable][DataGenRunnable] to generate. Call any runnable registering
     /// method in here.
@@ -98,7 +128,8 @@ public abstract class GeodeDataGeneration implements DataProvider {
             return CompletableFuture.allOf(
                     dataGen.translations.run(writer),
                     dataGen.enchantments.run(writer),
-                    dataGen.enchantmentTags.run(writer)
+                    dataGen.enchantmentTags.run(writer),
+                    dataGen.models.run(writer)
             );
         });
     }
@@ -106,6 +137,12 @@ public abstract class GeodeDataGeneration implements DataProvider {
     @Override
     public String getName() {
         return "GeodeDataGen";
+    }
+
+    public abstract String getModId();
+
+    public Identifier linkedModId(String identifier) {
+        return Identifier.of(getModId(), identifier);
     }
 
     // endregion
@@ -118,15 +155,18 @@ public abstract class GeodeDataGeneration implements DataProvider {
         public final LanguageGenerator translations;
         public final EnchantmentGenerator enchantments;
         public final EnchantmentTagGenerator enchantmentTags;
+        public final ModelGenerator models;
 
         private final Map<String, String> registeredTranslations = new HashMap<>();
         private final Map<Identifier, IncompleteEnchantment> registeredEnchantments = new HashMap<>();
         private final Map<TagKey<Enchantment>, List<Identifier>> registeredEnchantmentTags = new HashMap<>();
+        private final List<BlockModelDefinitionCreator> blockStateModelGenerators = new ArrayList<>();
 
         public DataGen(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
             translations = new LanguageGenerator(dataOutput, registriesFuture);
             enchantments = new EnchantmentGenerator(dataOutput, registriesFuture);
             enchantmentTags = new EnchantmentTagGenerator(dataOutput, registriesFuture);
+            models = new ModelGenerator(dataOutput);
         }
 
         public final class LanguageGenerator extends FabricLanguageProvider {
@@ -178,6 +218,28 @@ public abstract class GeodeDataGeneration implements DataProvider {
                     identifiers.forEach(builder::addOptional);
                     builder.build();
                 });
+            }
+        }
+
+        public final class ModelGenerator extends FabricModelProvider {
+            public void addBlockState(BlockModelDefinitionCreator definitionCreator) {
+                blockStateModelGenerators.add(definitionCreator);
+            }
+
+            private ModelGenerator(FabricDataOutput output) {
+                super(output);
+            }
+
+            @Override
+            public void generateBlockStateModels(@NonNull BlockStateModelGenerator blockStateModelGenerator) {
+                for (BlockModelDefinitionCreator definitionCreator : blockStateModelGenerators) {
+                    blockStateModelGenerator.blockStateCollector.accept(definitionCreator);
+                }
+            }
+
+            @Override
+            public void generateItemModels(ItemModelGenerator itemModelGenerator) {
+
             }
         }
     }
@@ -396,45 +458,6 @@ public abstract class GeodeDataGeneration implements DataProvider {
         // endregion
     }
 
-    public static final class BlockRunnable extends DataGenRunnable<Block> implements
-            Translatable<BlockRunnable>,
-            AutoTranslatable<BlockRunnable> {
-        // region Essentials
-
-        public BlockRunnable(Block block) {
-            super(block);
-        }
-
-        @Override
-        protected void run(@NotNull RegistryWrapper.WrapperLookup registries, DataGen dataGen) {
-            dataGen.translations.add(value.getTranslationKey(), nameTranslation.complete(registries));
-        }
-
-        // endregion
-
-        // region Translation
-
-        private IncompleteGetter<String> nameTranslation;
-
-        @Override
-        public BlockRunnable translate(String translation) {
-            nameTranslation = registries -> translation;
-            return this;
-        }
-
-        @Override
-        public BlockRunnable autoTranslate() {
-            nameTranslation = registries ->
-                    Optional.ofNullable(RegistryHelper.getIdentifierOf(registries, RegistryKeys.BLOCK, value))
-                            .map(StringHelper::toHumanReadableName)
-                            .orElse(value.getTranslationKey());
-
-            return this;
-        }
-
-        // endregion
-    }
-
     public static final class BlockEntityRunnable extends DataGenRunnable<BlockEntity> {
         // region Essentials
 
@@ -509,6 +532,62 @@ public abstract class GeodeDataGeneration implements DataProvider {
                             .map(StringHelper::toHumanReadableName)
                             .orElse(value.getTranslationKey());
 
+            return this;
+        }
+
+        // endregion
+    }
+
+    public final class BlockRunnable extends DataGenRunnable<Block> implements
+            Translatable<BlockRunnable>,
+            AutoTranslatable<BlockRunnable> {
+        // region Essentials
+
+        public BlockRunnable(Block block) {
+            super(block);
+        }
+
+        @Override
+        protected void run(@NotNull RegistryWrapper.WrapperLookup registries, DataGen dataGen) {
+            dataGen.translations.add(value.getTranslationKey(), nameTranslation.complete(registries));
+            if (blockStateDefinitionCreator != null) dataGen.models.addBlockState(blockStateDefinitionCreator);
+        }
+
+        // endregion
+
+        // region Translation
+
+        private IncompleteGetter<String> nameTranslation;
+
+        @Override
+        public BlockRunnable translate(String translation) {
+            nameTranslation = registries -> translation;
+            return this;
+        }
+
+        @Override
+        public BlockRunnable autoTranslate() {
+            nameTranslation = registries ->
+                    Optional.ofNullable(RegistryHelper.getIdentifierOf(registries, RegistryKeys.BLOCK, value))
+                            .map(StringHelper::toHumanReadableName)
+                            .orElse(value.getTranslationKey());
+
+            return this;
+        }
+
+        // endregion
+
+        // region Block State
+
+        private BlockModelDefinitionCreator blockStateDefinitionCreator;
+
+        public BlockRunnable variantsBlockstate(Function<VariantsBlockModelDefinitionCreator.Empty, VariantsBlockModelDefinitionCreator> definition) {
+            blockStateDefinitionCreator = definition.apply(VariantsBlockModelDefinitionCreator.of(getValue()));
+            return this;
+        }
+
+        public BlockRunnable multipartBlockstate(UnaryOperator<MultipartDefinitionCreator> definition) {
+            blockStateDefinitionCreator = definition.apply(new MultipartDefinitionCreator(getValue()));
             return this;
         }
 
@@ -729,6 +808,329 @@ public abstract class GeodeDataGeneration implements DataProvider {
                         anvilCost,
                         slots
                 );
+            }
+        }
+    }
+
+    public class MultipartDefinitionCreator implements BlockModelDefinitionCreator {
+        private final List<Part> parts = new ArrayList<>();
+        private final Block block;
+
+        public MultipartDefinitionCreator(Block block) {
+            this.block = block;
+        }
+
+        public Block getBlock() {
+            return this.block;
+        }
+
+
+        // region with
+
+        public MultipartDefinitionCreator with(@Nullable MultipartModelCondition condition, WeightedVariant variant) {
+            if (condition != null) {
+                validate(condition);
+            }
+
+            Part part = new Part(Optional.ofNullable(condition), variant);
+            parts.add(part);
+
+            return this;
+        }
+
+        // region utilities
+
+        // region condition
+
+        public MultipartDefinitionCreator with(@Nullable MultipartModelCondition condition,
+                                               UnaryOperator<ModelVariant> operator,
+                                               Identifier... variants) {
+            return with(
+                    condition,
+                    // "Bakes" all the model variants into a single weighted variant
+                    BlockStateModelGenerator.createWeightedVariant(Arrays.stream(variants)
+                            // Turns the identifier into a model variant
+                            .map(BlockStateModelGenerator::createModelVariant)
+                            // Applies the operator on the created model variant
+                            .map(operator)
+                            // Creates an array from the stream
+                            .toArray(ModelVariant[]::new)
+                    )
+            );
+        }
+
+        public MultipartDefinitionCreator with(@Nullable MultipartModelCondition condition,
+                                               UnaryOperator<ModelVariant> operator,
+                                               String... variants) {
+            return with(
+                    condition,
+                    operator,
+                    Arrays.stream(variants).map(GeodeDataGeneration.this::linkedModId).toArray(Identifier[]::new)
+            );
+        }
+
+        public MultipartDefinitionCreator with(@Nullable MultipartModelCondition condition, Identifier... variants) {
+            return with(condition, ignored -> ignored, variants);
+        }
+
+        public MultipartDefinitionCreator with(@Nullable MultipartModelCondition condition, String... variants) {
+            return with(condition, ignored -> ignored, variants);
+        }
+
+        // endregion
+
+        // region condition builder
+
+        public MultipartDefinitionCreator with(@Nullable MultipartModelConditionBuilder condition,
+                                               UnaryOperator<ModelVariant> operator,
+                                               Identifier... variants) {
+            return with(
+                    Optional.ofNullable(condition).map(MultipartModelConditionBuilder::build).orElse(null),
+                    operator,
+                    variants
+            );
+        }
+
+        public MultipartDefinitionCreator with(@Nullable MultipartModelConditionBuilder condition,
+                                               UnaryOperator<ModelVariant> operator,
+                                               String... variants) {
+            return with(
+                    Optional.ofNullable(condition).map(MultipartModelConditionBuilder::build).orElse(null),
+                    operator,
+                    variants
+            );
+        }
+
+        public MultipartDefinitionCreator with(@Nullable MultipartModelConditionBuilder condition, Identifier... variants) {
+            return with(
+                    Optional.ofNullable(condition).map(MultipartModelConditionBuilder::build).orElse(null),
+                    ignored -> ignored,
+                    variants
+            );
+        }
+
+        public MultipartDefinitionCreator with(@Nullable MultipartModelConditionBuilder condition, String... variants) {
+            return with(
+                    Optional.ofNullable(condition).map(MultipartModelConditionBuilder::build).orElse(null),
+                    ignored -> ignored,
+                    variants
+            );
+        }
+
+        // region properties
+
+        // region identifiers
+
+        public <T extends Comparable<T>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+
+                UnaryOperator<ModelVariant> operator,
+                Identifier... variants
+        ) {
+            return with(
+                    BlockStateModelGenerator.createMultipartConditionBuilder()
+                            .put(property, value)
+                    ,
+                    operator,
+                    variants
+            );
+        }
+
+        public <T extends Comparable<T>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+
+                Identifier... variants
+        ) {
+            return with(property, value, ignored -> ignored, variants);
+        }
+
+        public <T extends Comparable<T>, U extends Comparable<U>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+                Property<U> property2, U value2,
+
+                UnaryOperator<ModelVariant> operator,
+                Identifier... variants
+        ) {
+            return with(
+                    BlockStateModelGenerator.createMultipartConditionBuilder()
+                            .put(property, value)
+                            .put(property2, value2)
+                    ,
+                    operator,
+                    variants
+            );
+        }
+
+        public <T extends Comparable<T>, U extends Comparable<U>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+                Property<U> property2, U value2,
+
+                Identifier... variants
+        ) {
+            return with(property, value, property2, value2, ignored -> ignored, variants);
+        }
+
+        public <T extends Comparable<T>, U extends Comparable<U>, V extends Comparable<V>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+                Property<U> property2, U value2,
+                Property<V> property3, V value3,
+
+                UnaryOperator<ModelVariant> operator,
+                Identifier... variants
+        ) {
+            return with(
+                    BlockStateModelGenerator.createMultipartConditionBuilder()
+                            .put(property, value)
+                            .put(property2, value2)
+                            .put(property3, value3)
+                    ,
+                    operator,
+                    variants
+            );
+        }
+
+        public <T extends Comparable<T>, U extends Comparable<U>, V extends Comparable<V>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+                Property<U> property2, U value2,
+                Property<V> property3, V value3,
+
+                Identifier... variants
+        ) {
+            return with(property, value, property2, value2, property3, value3, ignored -> ignored, variants);
+        }
+
+        // endregion
+
+        // region strings
+
+        public <T extends Comparable<T>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+
+                UnaryOperator<ModelVariant> operator,
+                String... variants
+        ) {
+            return with(
+                    BlockStateModelGenerator.createMultipartConditionBuilder()
+                            .put(property, value)
+                    ,
+                    operator,
+                    variants
+            );
+        }
+
+        public <T extends Comparable<T>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+
+                String... variants
+        ) {
+            return with(property, value, ignored -> ignored, variants);
+        }
+
+        public <T extends Comparable<T>, U extends Comparable<U>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+                Property<U> property2, U value2,
+
+                UnaryOperator<ModelVariant> operator,
+                String... variants
+        ) {
+            return with(
+                    BlockStateModelGenerator.createMultipartConditionBuilder()
+                            .put(property, value)
+                            .put(property2, value2)
+                    ,
+                    operator,
+                    variants
+            );
+        }
+
+        public <T extends Comparable<T>, U extends Comparable<U>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+                Property<U> property2, U value2,
+
+                String... variants
+        ) {
+            return with(property, value, property2, value2, ignored -> ignored, variants);
+        }
+
+        public <T extends Comparable<T>, U extends Comparable<U>, V extends Comparable<V>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+                Property<U> property2, U value2,
+                Property<V> property3, V value3,
+
+                UnaryOperator<ModelVariant> operator,
+                String... variants
+        ) {
+            return with(
+                    BlockStateModelGenerator.createMultipartConditionBuilder()
+                            .put(property, value)
+                            .put(property2, value2)
+                            .put(property3, value3)
+                    ,
+                    operator,
+                    variants
+            );
+        }
+
+        public <T extends Comparable<T>, U extends Comparable<U>, V extends Comparable<V>> MultipartDefinitionCreator with(
+                Property<T> property, T value,
+                Property<U> property2, U value2,
+                Property<V> property3, V value3,
+
+                String... variants
+        ) {
+            return with(property, value, property2, value2, property3, value3, ignored -> ignored, variants);
+        }
+
+        // endregion
+
+        // endregion
+
+        // endregion
+
+        // region unconditional
+
+        public MultipartDefinitionCreator with(UnaryOperator<ModelVariant> operator, Identifier... variants) {
+            return with((MultipartModelCondition) null, operator, variants);
+        }
+
+        public MultipartDefinitionCreator with(UnaryOperator<ModelVariant> operator, String... variants) {
+            return with((MultipartModelCondition) null, operator, variants);
+        }
+
+        public MultipartDefinitionCreator with(Identifier... variants) {
+            return with((MultipartModelCondition) null, ignored -> ignored, variants);
+        }
+
+        public MultipartDefinitionCreator with(String... variants) {
+            return with((MultipartModelCondition) null, ignored -> ignored, variants);
+        }
+
+        // endregion
+
+        // endregion
+
+        // endregion
+
+        private void validate(MultipartModelCondition selector) {
+            selector.instantiate(this.block.getStateManager());
+        }
+
+        public BlockModelDefinition createBlockModelDefinition() {
+            return new BlockModelDefinition(Optional.empty(), Optional.of(new BlockModelDefinition.Multipart(this.parts.stream().map(Part::toComponent).toList())));
+        }
+
+        @Environment(EnvType.CLIENT)
+        private record Part(Optional<MultipartModelCondition> condition, WeightedVariant variants) {
+            public MultipartModelComponent toComponent() {
+                return new MultipartModelComponent(this.condition, this.variants.toModel());
+            }
+
+            public Optional<MultipartModelCondition> condition() {
+                return this.condition;
+            }
+
+            public WeightedVariant variants() {
+                return this.variants;
             }
         }
     }
