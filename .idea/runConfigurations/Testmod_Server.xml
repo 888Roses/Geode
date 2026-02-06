@@ -1,10 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" factoryName="Application" name="Minecraft Server" type="Application">
+  <configuration default="false" factoryName="Application" name="Testmod Server" type="Application">
     <option name="MAIN_CLASS_NAME" value="net.fabricmc.devlaunchinjector.Main"/>
-    <module name="Geode.main"/>
+    <module name="Geode.testmod"/>
     <option name="PROGRAM_PARAMETERS" value="nogui"/>
     <option name="VM_PARAMETERS" value="-Dfabric.dli.config=C:\dev\java\Geode\.gradle\loom-cache\launch.cfg -Dfabric.dli.env=server -Dfabric.dli.main=net.fabricmc.loader.impl.launch.knot.KnotServer"/>
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run/"/>
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run/test_server/"/>
     <method v="2">
       <option enabled="true" name="Make"/>
     </method>

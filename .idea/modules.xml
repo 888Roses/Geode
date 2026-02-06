@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Geode.iml" filepath="$PROJECT_DIR$/.idea/modules/Geode.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Geode.main.iml" filepath="$PROJECT_DIR$/.idea/modules/Geode.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Geode.test.iml" filepath="$PROJECT_DIR$/.idea/modules/Geode.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Geode.testmod.iml" filepath="$PROJECT_DIR$/.idea/modules/Geode.testmod.iml" />
     </modules>
   </component>
 </project>

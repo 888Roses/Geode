@@ -16,6 +16,10 @@
 
 ▢ Client side registration of various renderer and hud elements.
 
+▢ Remake how items are registered to use a builder pattern instead, allowing for more options.
+
+▢ Add an option to add a registered item into an existing non-geode item group right away, in the item builder.
+
 ## 📖 Data Generation
 
 ▢ Data generation for `StatusEffect`.
@@ -40,10 +44,23 @@
 
 ▢ `AllowEatingCallback` called when an entity tries to eat. Returns whether the entity is allowed to eat or not.
 
-▢ `AllowFallDamageCallback` called when an entity takes fall damage. Returns whether the entity can take fall damage or not.
+▢ `AllowFallDamageCallback` called when an entity takes fall damage. Returns whether the entity can take fall damage or
+not.
 
-▢ `AllowRidingCallback` called when an entity tries to ride another entity. Returns whether the entity can ride the other entity or not.
+▢ `AllowRidingCallback` called when an entity tries to ride another entity. Returns whether the entity can ride the
+other entity or not.
+
+▢ `OnWorldRender` called when the world is being rendered.
 
 ## 🏷️ Debug
 
-▢ Drawing a dotted gizmo line using `Draw#dottedLine(double3, double3, int, float)` and every other common line drawing variants.
+▢ Drawing a dotted gizmo line using `Draw#dottedLine(double3, double3, int, float)` and every other common line drawing
+variants.
+
+▢ Drawing `VoxelShape`
+
+▢ Drawing the collision box of a `BlockState`.
+
+## ⛏️ Items
+
+▢ Description item using generalized `TooltipData`.
