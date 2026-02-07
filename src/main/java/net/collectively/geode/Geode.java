@@ -1,10 +1,13 @@
 package net.collectively.geode;
 
 import net.collectively.geode.registration.ServerRegisterer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("unused")
 public class Geode implements ServerRegisterer {
     private final String linkedModId;
+    public final Logger logger;
 
     /// Creates a new [Geode] instance to be used for the given mod.
     public static Geode create(String linkedModId) {
@@ -13,6 +16,7 @@ public class Geode implements ServerRegisterer {
 
     protected Geode(String linkedModId) {
         this.linkedModId = linkedModId;
+        this.logger = LoggerFactory.getLogger(linkedModId);
     }
 
     @Override
