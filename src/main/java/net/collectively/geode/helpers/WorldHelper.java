@@ -15,7 +15,7 @@ public interface WorldHelper {
     /// Contains information about a raymarch instruction.
     ///
     /// @param stepCount How many steps are in this raymarch. Alongside the `increment`, this determines the distance traveled by the raymarch.
-    /// @param increment The distance between each step of the raymarch. This is what determines the distance traveled by the raymarch, in combination with the step count.
+    /// @param increment The distance between each step of the raymarch. This is what determines the distance traveled by the raymarch, in combination with the step variantCount.
     /// @param startingRadius The starting length of the sides of the detection box for each step of the raymarch.
     /// @param radiusIncrement Value added to the `startingRadius` at every step of the raymarch, increasing the size of the raymarch detection box to account for distance inaccuracy.
     /// @param validate [predicate][Predicate] of type [Entity] checking if the given raymarched entity is a valid one or not.

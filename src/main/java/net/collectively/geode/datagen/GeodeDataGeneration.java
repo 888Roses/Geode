@@ -6,7 +6,9 @@ import net.collectively.geode.registration.GeodeEnchantment;
 import net.collectively.geode.registration.GeodeItemGroup;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.datagen.v1.builder.SoundTypeBuilder;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
+import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricSoundsProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
@@ -34,6 +36,7 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.entry.RegistryEntryList;
 import net.minecraft.registry.tag.EnchantmentTags;
 import net.minecraft.registry.tag.TagBuilder;
@@ -129,7 +132,8 @@ public abstract class GeodeDataGeneration implements DataProvider {
                     dataGen.translations.run(writer),
                     dataGen.enchantments.run(writer),
                     dataGen.enchantmentTags.run(writer),
-                    dataGen.models.run(writer)
+                    dataGen.models.run(writer),
+                    dataGen.sounds.run(writer)
             );
         });
     }
@@ -156,17 +160,20 @@ public abstract class GeodeDataGeneration implements DataProvider {
         public final EnchantmentGenerator enchantments;
         public final EnchantmentTagGenerator enchantmentTags;
         public final ModelGenerator models;
+        public final SoundGenerator sounds;
 
         private final Map<String, String> registeredTranslations = new HashMap<>();
         private final Map<Identifier, IncompleteEnchantment> registeredEnchantments = new HashMap<>();
         private final Map<TagKey<Enchantment>, List<Identifier>> registeredEnchantmentTags = new HashMap<>();
         private final List<BlockModelDefinitionCreator> blockStateModelGenerators = new ArrayList<>();
+        private final List<IncompleteSoundDefinition> registeredSounds = new ArrayList<>();
 
         public DataGen(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
             translations = new LanguageGenerator(dataOutput, registriesFuture);
             enchantments = new EnchantmentGenerator(dataOutput, registriesFuture);
             enchantmentTags = new EnchantmentTagGenerator(dataOutput, registriesFuture);
             models = new ModelGenerator(dataOutput);
+            sounds = new SoundGenerator(dataOutput, registriesFuture);
         }
 
         public final class LanguageGenerator extends FabricLanguageProvider {
@@ -240,6 +247,41 @@ public abstract class GeodeDataGeneration implements DataProvider {
             @Override
             public void generateItemModels(ItemModelGenerator itemModelGenerator) {
 
+            }
+        }
+
+        public final class SoundGenerator extends FabricSoundsProvider {
+            public void addSound(IncompleteSoundDefinition incompleteSoundDefinition) {
+                registeredSounds.add(incompleteSoundDefinition);
+            }
+
+            public SoundGenerator(DataOutput output, CompletableFuture<RegistryWrapper.WrapperLookup> registriesFuture) {
+                super(output, registriesFuture);
+            }
+
+            @Override
+            protected void configure(RegistryWrapper.WrapperLookup registryLookup, SoundExporter exporter) {
+                for (IncompleteSoundDefinition definition : registeredSounds) {
+                    SoundTypeBuilder builder = SoundTypeBuilder.of(definition.soundEvent());
+                    if (definition.replace().isPresent()) builder.replace(true);
+                    if (definition.subtitle().isPresent()) builder.subtitle(definition.subtitle().get());
+
+                    for (IncompleteSoundDefinition.Entry sound : definition.sounds()) {
+                        if (sound.variantCount() < 2) {
+                            builder.sound(sound.toEntry());
+                            continue;
+                        }
+
+                        builder.sound(sound.toEntry(), sound.variantCount());
+                    }
+
+                    exporter.add(definition.soundEvent(), builder);
+                }
+            }
+
+            @Override
+            public String getName() {
+                return "";
             }
         }
     }
@@ -472,8 +514,12 @@ public abstract class GeodeDataGeneration implements DataProvider {
         // endregion
     }
 
-    public static final class SoundRunnable extends DataGenRunnable<SoundEvent> {
-        // region Essentials
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public final class SoundRunnable extends DataGenRunnable<SoundEvent> {
+        private static final String NON_REGISTERED_SOUND_EXCEPTION = "Direct (non-registered) sound event cannot be added";
+        private Optional<Boolean> replace = Optional.empty();
+        private Optional<String> subtitle = Optional.empty();
+        private final List<IncompleteSoundDefinition.Entry> sounds = new ArrayList<>();
 
         public SoundRunnable(SoundEvent sound) {
             super(sound);
@@ -481,22 +527,82 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
         @Override
         protected void run(@NotNull RegistryWrapper.WrapperLookup registries, DataGen dataGen) {
-            String key = Util.createTranslationKey("subtitle", value.id());
-            dataGen.translations.add(key, Optional.ofNullable(subtitleTranslation.complete(registries)).orElse(key));
+            dataGen.sounds.addSound(new IncompleteSoundDefinition(getValue(), replace, subtitle, sounds));
         }
 
-        // endregion
-
-        // region Translation
-
-        private IncompleteGetter<String> subtitleTranslation = null;
-
-        public SoundRunnable subtitle(String translation) {
-            subtitleTranslation = registries -> translation;
+        public SoundRunnable replace(boolean replace) {
+            this.replace = Optional.of(replace);
             return this;
         }
 
-        // endregion
+        public SoundRunnable subtitle(String subtitle) {
+            this.subtitle = Optional.ofNullable(subtitle);
+            return this;
+        }
+
+        public SoundRunnable addSoundWithType(IncompleteSoundDefinition.Entry.Type type, Identifier identifier, int variantCount) {
+            this.sounds.add(new IncompleteSoundDefinition.Entry(type, identifier, variantCount));
+            return this;
+        }
+
+        public SoundRunnable addSound(Identifier identifier, int variantCount) {
+            return addSoundWithType(IncompleteSoundDefinition.Entry.Type.FILE, identifier, variantCount);
+        }
+
+        public SoundRunnable addSound(Identifier identifier) {
+            return addSound(identifier, 1);
+        }
+
+        public SoundRunnable addSoundReference(Identifier reference, int variantCount) {
+            return addSoundWithType(IncompleteSoundDefinition.Entry.Type.REFERENCE, reference, variantCount);
+        }
+
+        public SoundRunnable addSoundReference(Identifier reference) {
+            return addSoundReference(reference, 1);
+        }
+
+        public SoundRunnable addSoundReference(SoundEvent reference, int variantCount) {
+            return addSoundReference(reference.id(), variantCount);
+        }
+
+        public SoundRunnable addSoundReference(SoundEvent reference) {
+            return addSoundReference(reference.id(), 1);
+        }
+
+        public SoundRunnable addSoundReference(RegistryEntry<SoundEvent> reference, int variantCount) {
+            return addSoundReference(
+                    reference.getKey().orElseThrow(() -> new IllegalArgumentException(NON_REGISTERED_SOUND_EXCEPTION)).getValue(),
+                    variantCount
+            );
+        }
+
+        public SoundRunnable addSoundReference(RegistryEntry<SoundEvent> reference) {
+            return addSoundReference(
+                    reference.getKey().orElseThrow(() -> new IllegalArgumentException(NON_REGISTERED_SOUND_EXCEPTION)).getValue(),
+                    1
+            );
+        }
+
+        public SoundRunnable addSoundWithType(IncompleteSoundDefinition.Entry.Type type, String identifier, int variantCount) {
+            this.sounds.add(new IncompleteSoundDefinition.Entry(type, linkedModId(identifier), variantCount));
+            return this;
+        }
+
+        public SoundRunnable addSound(String identifier, int variantCount) {
+            return addSoundWithType(IncompleteSoundDefinition.Entry.Type.FILE, identifier, variantCount);
+        }
+
+        public SoundRunnable addSound(String identifier) {
+            return addSound(identifier, 1);
+        }
+
+        public SoundRunnable addSoundReference(String reference, int variantCount) {
+            return addSoundWithType(IncompleteSoundDefinition.Entry.Type.REFERENCE, reference, variantCount);
+        }
+
+        public SoundRunnable addSoundReference(String reference) {
+            return addSoundReference(reference, 1);
+        }
     }
 
     public static final class EntityTypeRunnable<U extends Entity> extends DataGenRunnable<EntityType<U>> implements
@@ -1131,6 +1237,25 @@ public abstract class GeodeDataGeneration implements DataProvider {
 
             public WeightedVariant variants() {
                 return this.variants;
+            }
+        }
+    }
+
+    public record IncompleteSoundDefinition(SoundEvent soundEvent,
+                                            Optional<Boolean> replace,
+                                            Optional<String> subtitle,
+                                            List<Entry> sounds) {
+        public record Entry(Type type, Identifier identifier, int variantCount) {
+            public enum Type {FILE, REFERENCE}
+
+            public SoundTypeBuilder.EntryBuilder toEntry() {
+                return switch (type) {
+                    case FILE -> SoundTypeBuilder.EntryBuilder.ofFile(identifier());
+                    case REFERENCE -> SoundTypeBuilder.EntryBuilder.create(
+                            SoundTypeBuilder.RegistrationType.SOUND_EVENT,
+                            identifier()
+                    );
+                };
             }
         }
     }
