@@ -6,6 +6,7 @@
   "mixins": [
   ],
   "client": [
+    "client.WorldRendererMixin",
     "client.options.AccessibilityOptionsScreenMixin",
     "client.options.ChatOptionsScreenMixin",
     "client.options.ControlsOptionsScreenMixin",
