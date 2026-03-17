@@ -1,4 +1,4 @@
-package net.collectively.geode.v2.mixin;
+package net.collectively.geode.v2.mixin.util.interfaces;
 
 import net.collectively.geode.v2.util.interfaces.DrawContextGetter;
 import net.minecraft.client.font.TextRenderer;

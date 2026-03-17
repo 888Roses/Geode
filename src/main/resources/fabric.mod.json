@@ -21,7 +21,10 @@
     "cardinal-components": [
     ],
     "loom:injected_interfaces": {
-      "net/minecraft/client/gui/DrawContext": ["net/collectively/geode/v2/util/interfaces/DrawContextGetter"]
+      "net/minecraft/client/gui/DrawContext": ["net/collectively/geode/v2/util/interfaces/DrawContextGetter"],
+      "net/minecraft/entity/Entity": ["net/collectively/geode/v2/util/interfaces/EntityGetter", "net/collectively/geode/v2/util/interfaces/RandomProvider"],
+      "net/minecraft/client/particle/Particle": ["net/collectively/geode/v2/util/interfaces/RandomProvider"],
+      "net/minecraft/world/World": ["net/collectively/geode/v2/util/interfaces/RandomProvider"]
     }
   },
   "depends": {

@@ -4,9 +4,12 @@
   "package": "net.collectively.geode.v2.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "util.interfaces.EntityMixin",
+    "util.interfaces.WorldMixin"
   ],
   "client": [
-    "DrawContextMixin"
+    "util.interfaces.DrawContextMixin",
+    "util.interfaces.ParticleMixin"
   ],
   "injectors": {
     "defaultRequire": 1
