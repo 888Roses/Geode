@@ -8,11 +8,16 @@ import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(Entity.class)
@@ -46,6 +51,15 @@ public abstract class EntityMixin implements EntityGetter, RandomProvider {
 
     @Shadow
     public abstract Vec3d getRotationVector();
+
+    @Shadow
+    public abstract void setVelocity(Vec3d velocity);
+
+    @Shadow
+    public abstract void addVelocity(Vec3d vec);
+
+    @Shadow
+    public abstract Vec3d getVelocity();
 
     @Override
     public double3 pos() {
@@ -106,5 +120,34 @@ public abstract class EntityMixin implements EntityGetter, RandomProvider {
         }
 
         return false;
+    }
+
+    @Override
+    public <T extends Entity> List<T> getEntitiesInBox(Class<T> clazz, Box box, Predicate<T> selector) {
+        return getEntityWorld().getEntitiesByClass(clazz, box, selector);
+    }
+
+    @Override
+    public <T extends Entity> List<T> getEntitiesInRadius(Class<T> clazz, double radius, Predicate<T> selector) {
+        return getEntitiesInBox(
+                clazz,
+                Box.of(getEntityPos(), radius * 2, radius * 2, radius * 2),
+                entity -> entity.distanceTo((Entity) (Object) this) <= radius && selector.test(entity)
+        );
+    }
+
+    @Override
+    public void setVelocity(double3 velocity) {
+        setVelocity(velocity.toVec3d());
+    }
+
+    @Override
+    public void addVelocity(double3 velocity) {
+        addVelocity(velocity.toVec3d());
+    }
+
+    @Override
+    public double3 velocity() {
+        return double3.of(getVelocity());
     }
 }
