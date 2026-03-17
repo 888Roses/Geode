@@ -16,11 +16,14 @@
   "mixins": [
     "geode.mixins.json"
   ],
+  "accessWidener": "geode.accesswidener",
   "custom": {
     "cardinal-components": [
-    ]
+    ],
+    "loom:injected_interfaces": {
+      "net/minecraft/client/gui/DrawContext": ["net/collectively/geode/v2/util/interfaces/DrawContextGetter"]
+    }
   },
-  "accessWidener": "geode.accesswidener",
   "depends": {
     "fabricloader": ">=${loader_version}",
     "fabric-api": "*",

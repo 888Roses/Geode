@@ -1,0 +1,25 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.collectively.geode.v1.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+  ],
+  "client": [
+    "net.collectively.geode.v1.mixin.client.WorldRendererMixin",
+    "net.collectively.geode.v1.mixin.client.options.AccessibilityOptionsScreenMixin",
+    "net.collectively.geode.v1.mixin.client.options.ChatOptionsScreenMixin",
+    "net.collectively.geode.v1.mixin.client.options.ControlsOptionsScreenMixin",
+    "net.collectively.geode.v1.mixin.client.options.GameOptionsMixin",
+    "net.collectively.geode.v1.mixin.client.options.MouseOptionsScreenMixin",
+    "net.collectively.geode.v1.mixin.client.options.SkinOptionsScreenMixin",
+    "net.collectively.geode.v1.mixin.client.options.SoundOptionsScreenMixin",
+    "net.collectively.geode.v1.mixin.client.options.VideoOptionsScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}
