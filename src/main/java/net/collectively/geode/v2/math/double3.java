@@ -133,8 +133,8 @@ public record double3(double x, double y, double z) implements Position, Compara
     public double squaredHorizontalMagnitude() {return xz().squaredMagnitude();}
     public double magnitude() {return sqrt(squaredMagnitude());}
     public double horizontalMagnitude() {return sqrt(squaredHorizontalMagnitude());}
-    public double3 normalize() {
-        return div(sqrt(magnitude()));
+    public double3 normalized() {
+        return div(magnitude());
     }
 
     public double3 maxx(double b) {return modx(a->max(a,b));}
