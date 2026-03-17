@@ -5,9 +5,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
 import net.minecraft.entity.player.PlayerEntity;
+
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @ApiStatus.NonExtendable
 public interface EntityGetter {
@@ -161,5 +166,23 @@ public interface EntityGetter {
      * @return `true` if the item's {@link Item#getDefaultStack()} is on cooldown `false` otherwise.
      * @see #isOnCooldown(Item)
      */
-    default boolean isOnCooldown(Item item) {return isOnCooldown(item.getDefaultStack());}
+    default boolean isOnCooldown(Item item) {
+        return isOnCooldown(item.getDefaultStack());
+    }
+
+    <T extends Entity> List<T> getEntitiesInBox(Class<T> clazz, Box box, Predicate<T> selector);
+
+    default List<Entity> getEntitiesInBox(Box box, Predicate<Entity> selector) {
+        return getEntitiesInBox(Entity.class, box, selector);
+    }
+
+    <T extends Entity> List<T> getEntitiesInRadius(Class<T> clazz, double radius, Predicate<T> selector);
+
+    default List<Entity> getEntitiesInRadius(double radius, Predicate<Entity> selector) {
+        return getEntitiesInRadius(Entity.class, radius, selector);
+    }
+
+    double3 velocity();
+    void setVelocity(double3 velocity);
+    void addVelocity(double3 velocity);
 }
