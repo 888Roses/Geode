@@ -6,6 +6,7 @@ import net.collectively.geode.v2.util.interfaces.RandomProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
@@ -43,6 +44,9 @@ public abstract class EntityMixin implements EntityGetter, RandomProvider {
     @Shadow
     public abstract Random getRandom();
 
+    @Shadow
+    public abstract Vec3d getRotationVector();
+
     @Override
     public double3 pos() {
         return double3.of(getEntityPos());
@@ -64,6 +68,11 @@ public abstract class EntityMixin implements EntityGetter, RandomProvider {
     }
 
     @Override
+    public double3 rotation() {
+        return double3.of(getRotationVector());
+    }
+
+    @Override
     public boolean isClient() {
         return getEntityWorld().isClient();
     }
@@ -78,6 +87,22 @@ public abstract class EntityMixin implements EntityGetter, RandomProvider {
         if ((Entity) (Object) this instanceof PlayerEntity player) {
             player.sendMessage(text, aboveHotbar);
             return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public void setCooldown(ItemStack itemStack, int duration) {
+        if ((Entity) (Object) this instanceof PlayerEntity player) {
+            player.getItemCooldownManager().set(itemStack, duration);
+        }
+    }
+
+    @Override
+    public boolean isOnCooldown(ItemStack itemStack) {
+        if ((Entity) (Object) this instanceof PlayerEntity player) {
+            return player.getItemCooldownManager().isCoolingDown(itemStack);
         }
 
         return false;

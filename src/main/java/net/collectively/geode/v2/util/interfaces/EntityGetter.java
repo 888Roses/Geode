@@ -2,6 +2,8 @@ package net.collectively.geode.v2.util.interfaces;
 
 import net.collectively.geode.v2.math.double3;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.ApiStatus;
@@ -73,6 +75,13 @@ public interface EntityGetter {
     }
 
     /**
+     * Rotation vector of this entity.
+     * @return {@link double3} representing the direction vector the entity is facing.
+     * @see Entity#getRotationVector()
+     */
+    double3 rotation();
+
+    /**
      * Whether this entity is on Client side.
      * @return `true` if this entity is on Client side `false` otherwise.
      * @see World#isClient()
@@ -118,4 +127,39 @@ public interface EntityGetter {
     default boolean message(String text) {
         return message(text, false);
     }
+
+    /**
+     * Sets the stack on cooldown for `duration` ticks.
+     * @param itemStack the {@link ItemStack} to put on cooldown.
+     * @param duration how long should that stack be on cooldown for.
+     * @apiNote this method only works if the entity is a {@link PlayerEntity}.
+     */
+    void setCooldown(ItemStack itemStack, int duration);
+
+    /**
+     * Sets the item's default stack on cooldown for `duration` ticks.
+     * @param item the item which {@link Item#getDefaultStack()} should be put on cooldown.
+     * @param duration how long should that item be on cooldown for.
+     * @apiNote this method only works if the entity is a {@link PlayerEntity}.
+     */
+    default void setCooldown(Item item, int duration) {
+        setCooldown(item.getDefaultStack(), duration);
+    }
+
+    /**
+     * Whether the given {@link ItemStack} is on cooldown or not.
+     * @param itemStack the stack to check for.
+     * @apiNote this method only works if the entity is a {@link PlayerEntity}. Otherwise, returns `false`.
+     * @return `true` if the stack is on cooldown `false` otherwise.
+     */
+    boolean isOnCooldown(ItemStack itemStack);
+
+    /**
+     * Whether the given {@link Item} is on cooldown or not.
+     * @param item the item to check for.
+     * @apiNote this method only works if the entity is a {@link PlayerEntity}. Otherwise, returns `false`.
+     * @return `true` if the item's {@link Item#getDefaultStack()} is on cooldown `false` otherwise.
+     * @see #isOnCooldown(Item)
+     */
+    default boolean isOnCooldown(Item item) {return isOnCooldown(item.getDefaultStack());}
 }
