@@ -78,6 +78,12 @@ public record double2(double x, double y) {
     public double squaredMagnitude() {return square(x()) + square(y());}
     public double magnitude() {return sqrt(squaredMagnitude());}
 
+    public double2 maxx(double b) {return modx(a->max(a,b));}
+    public double2 maxy(double b) {return mody(a->max(a,b));}
+
+    public double2 minx(double b) {return modx(a->min(a,b));}
+    public double2 miny(double b) {return mody(a->min(a,b));}
+
     public double2 add(double2 v) {return of(x() + v.x(), y() + v.y());}
     public double2 add(Vec2f v) {return of(x() + v.x, y() + v.y);}
     public double2 add(net.minecraft.client.util.math.Vector2f v) {return of(x() + v.x(), y() + v.y());}

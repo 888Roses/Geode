@@ -137,6 +137,14 @@ public record double3(double x, double y, double z) implements Position, Compara
         return div(sqrt(magnitude()));
     }
 
+    public double3 maxx(double b) {return modx(a->max(a,b));}
+    public double3 maxy(double b) {return mody(a->max(a,b));}
+    public double3 maxz(double b) {return modz(a->max(a,b));}
+
+    public double3 minx(double b) {return modx(a->min(a,b));}
+    public double3 miny(double b) {return mody(a->min(a,b));}
+    public double3 minz(double b) {return modz(a->min(a,b));}
+
     public double3 add(double3 v) {return of(x+v.x(),y+v.y(),z+v.z());}
     public double3 add(Vector3f v) {return of(x+v.x(),y+v.y(),z+v.z());}
     public double3 add(Vector3d v) {return of(x+v.x(),y+v.y(),z+v.z());}
