@@ -185,6 +185,22 @@ public record double3(double x, double y, double z) implements Position, Compara
     public double3 divy(double v){return div(of(1,v,1));}
     public double3 divz(double v){return div(of(1,1,v));}
 
+    public double3 lerpTo(double delta, double3 end){return of(lerp(delta,x(),end.x()),lerp(delta,y(),end.y()),lerp(delta,z(),end.z()));}
+    public double3 lerpTo(double delta, Vector3f end){return lerpTo(delta, of(end));}
+    public double3 lerpTo(double delta, Vector3d end){return lerpTo(delta, of(end));}
+    public double3 lerpTo(double delta, Vector3i end){return lerpTo(delta, of(end));}
+    public double3 lerpTo(double delta, Vector3L end){return lerpTo(delta, of(end));}
+    public double3 lerpTo(double delta, Position end){return lerpTo(delta, of(end));}
+    public double3 lerpTo(double delta, Vec3i end){return lerpTo(delta, of(end));}
+
+    public double3 lerpFrom(double delta, double3 start){return start.lerpTo(delta,this);}
+    public double3 lerpFrom(double delta, Vector3f start){return lerpFrom(delta, of(start));}
+    public double3 lerpFrom(double delta, Vector3d start){return lerpFrom(delta, of(start));}
+    public double3 lerpFrom(double delta, Vector3i start){return lerpFrom(delta, of(start));}
+    public double3 lerpFrom(double delta, Vector3L start){return lerpFrom(delta, of(start));}
+    public double3 lerpFrom(double delta, Position start){return lerpFrom(delta, of(start));}
+    public double3 lerpFrom(double delta, Vec3i start){return lerpFrom(delta, of(start));}
+
     // endregion
 
     // region string

@@ -118,6 +118,22 @@ public record double2(double x, double y) {
     public double2 divx(double v) {return of(x() / v, y());}
     public double2 divy(double v) {return of(x(), y() / v);}
 
+    public double2 lerpTo(double delta, double2 end) {return of(lerp(delta, x(), end.x()),lerp(delta, y(), end.y()));}
+    public double2 lerpTo(double delta, Vec2f end) {return lerpTo(delta, of(end));}
+    public double2 lerpTo(double delta, net.minecraft.client.util.math.Vector2f end) {return lerpTo(delta, of(end));}
+    public double2 lerpTo(double delta, Vector2f end) {return lerpTo(delta, of(end));}
+    public double2 lerpTo(double delta, Vector2d end) {return lerpTo(delta, of(end));}
+    public double2 lerpTo(double delta, Vector2i end) {return lerpTo(delta, of(end));}
+    public double2 lerpTo(double delta, Vector2L end) {return lerpTo(delta, of(end));}
+
+    public double2 lerpFrom(double delta, double2 end) {return end.lerpTo(delta, this);}
+    public double2 lerpFrom(double delta, Vec2f end) {return lerpFrom(delta, of(end));}
+    public double2 lerpFrom(double delta, net.minecraft.client.util.math.Vector2f end) {return lerpFrom(delta, of(end));}
+    public double2 lerpFrom(double delta, Vector2f end) {return lerpFrom(delta, of(end));}
+    public double2 lerpFrom(double delta, Vector2d end) {return lerpFrom(delta, of(end));}
+    public double2 lerpFrom(double delta, Vector2i end) {return lerpFrom(delta, of(end));}
+    public double2 lerpFrom(double delta, Vector2L end) {return lerpFrom(delta, of(end));}
+
     // endregion
 
     // region string
