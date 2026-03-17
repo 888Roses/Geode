@@ -77,6 +77,7 @@ public record double2(double x, double y) {
 
     public double squaredMagnitude() {return square(x()) + square(y());}
     public double magnitude() {return sqrt(squaredMagnitude());}
+    public double2 normalized() {return div(magnitude());}
 
     public double2 maxx(double b) {return modx(a->max(a,b));}
     public double2 maxy(double b) {return mody(a->max(a,b));}
@@ -91,6 +92,7 @@ public record double2(double x, double y) {
     public double2 add(Vector2d v) {return of(x() + v.x(), y() + v.y());}
     public double2 add(Vector2i v) {return of(x() + v.x(), y() + v.y());}
     public double2 add(Vector2L v) {return of(x() + v.x(), y() + v.y());}
+    public double2 add(double v) {return add(of(v));}
     public double2 addx(double v) {return of(x() + v, y());}
     public double2 addy(double v) {return of(x(), y() + v);}
 
@@ -101,6 +103,7 @@ public record double2(double x, double y) {
     public double2 sub(Vector2d v) {return of(x() - v.x(), y() - v.y());}
     public double2 sub(Vector2i v) {return of(x() - v.x(), y() - v.y());}
     public double2 sub(Vector2L v) {return of(x() - v.x(), y() - v.y());}
+    public double2 sub(double v) {return sub(of(v));}
     public double2 subx(double v) {return of(x() - v, y());}
     public double2 suby(double v) {return of(x(), y() - v);}
 
@@ -111,6 +114,7 @@ public record double2(double x, double y) {
     public double2 mul(Vector2d v) {return of(x() * v.x(), y() * v.y());}
     public double2 mul(Vector2i v) {return of(x() * v.x(), y() * v.y());}
     public double2 mul(Vector2L v) {return of(x() * v.x(), y() * v.y());}
+    public double2 mul(double v) {return mul(of(v));}
     public double2 mulx(double v) {return of(x() * v, y());}
     public double2 muly(double v) {return of(x(), y() * v);}
 
@@ -121,6 +125,7 @@ public record double2(double x, double y) {
     public double2 div(Vector2d v) {return of(x() / v.x(), y() / v.y());}
     public double2 div(Vector2i v) {return of(x() / v.x(), y() / v.y());}
     public double2 div(Vector2L v) {return of(x() / v.x(), y() / v.y());}
+    public double2 div(double v) {return div(of(v));}
     public double2 divx(double v) {return of(x() / v, y());}
     public double2 divy(double v) {return of(x(), y() / v);}
 
