@@ -5,6 +5,8 @@ import net.collectively.geode.v2.util.interfaces.EntityGetter;
 import net.collectively.geode.v2.util.interfaces.RandomProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
@@ -57,13 +59,8 @@ public abstract class EntityMixin implements EntityGetter, RandomProvider {
     }
 
     @Override
-    public double3 prevEyePos() {
+    public double3 lastEyePos() {
         return eyePos().add(getEyeHeight(getPose()));
-    }
-
-    @Override
-    public double3 centerPos() {
-        return pos().lerpTo(0.5, eyePos());
     }
 
     @Override
@@ -74,5 +71,15 @@ public abstract class EntityMixin implements EntityGetter, RandomProvider {
     @Override
     public Random random() {
         return getRandom();
+    }
+
+    @Override
+    public boolean message(Text text, boolean aboveHotbar) {
+        if ((Entity) (Object) this instanceof PlayerEntity player) {
+            player.sendMessage(text, aboveHotbar);
+            return true;
+        }
+
+        return false;
     }
 }
